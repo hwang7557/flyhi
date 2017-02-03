@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class MyMaze : MonoBehaviour {
 
+    int MazeMakeCount = 0;
+
     class MazeArea
     {
         public Vector3 LocalArea;
@@ -12,10 +14,22 @@ public class MyMaze : MonoBehaviour {
         public Vector3 RoomSize;
         public Vector3 RoomPosition;
 
+        public Vector3 CombineArea;
+
+        public int ParentNum;
+    }
+
+    class PathArea
+    {
+        public Vector3 LocalArea;
+        public Vector3 PlayArea;
+
         public int ParentNum;
     }
 
     List<MazeArea> L_Area = new List<MazeArea>();
+    List<PathArea> L_Path = new List<PathArea>();
+
     Vector3 m_MapSize = new Vector3(300.0f, 0.0f, 300.0f);
 
     // Use this for initialization
@@ -87,7 +101,7 @@ public class MyMaze : MonoBehaviour {
 
         for (int i = 0; i < Count; i++)
         {
-            if (L_Area[i].LocalArea.x < 30.0f || L_Area[i].LocalArea.z < 30.0f)
+            if (L_Area[i].LocalArea.x < 30.0f || L_Area[i].LocalArea.z < 30.0f || MazeMakeCount == 3)
             {
                 check = false;
             }
@@ -95,6 +109,7 @@ public class MyMaze : MonoBehaviour {
 
         if(check)
         {
+            MazeMakeCount++;
             MapMake();
         }
     }
@@ -128,15 +143,55 @@ public class MyMaze : MonoBehaviour {
     {
         //패스를 만든다.
         //우선 마지막 패스부터 차근차근 연결한다.
-
-        for (int i = L_Area.Count; i <= 0; i++)
+        for (int i = L_Area.Count - 1; i > 0; i--)
         {
             if(L_Area[i].ParentNum != -1)
             {
-                //합칠 때 새로운 합쳐진 사이즈를 저장해야하기 때문에 함수 2개쯤 더 추가해야함.
-                //if(L_Area[i].RoomPosition 
-                L_Area[i].RoomPosition.x = L_Area[i].RoomPosition.x + 1.0f;
+                //합칠 때 새로운 합쳐진 사이즈를 저장해야하기 때문에 CombineArea에 저장할 예정
+                L_Area[L_Area[i].ParentNum].CombineArea = L_Area[i].LocalArea + L_Area[L_Area[i].ParentNum].LocalArea;
+
+                //합쳐질 에어리어의 위치를 확인해야 함. 오른쪽인지 왼쪽인지 위쪽인지 아래인지
+                int AreaCheckX = SmallAndBigCheck(L_Area[i].PlayArea.x, L_Area[L_Area[i].ParentNum].PlayArea.x);
+                int AreaCheckY = SmallAndBigCheck(L_Area[i].PlayArea.y, L_Area[L_Area[i].ParentNum].PlayArea.y);
+
+                //위치를 확인했다면 이제 나(i)를 중심으로 센터를 잡자
+                float ChildrenCenterX = Mathf.Round(L_Area[i].PlayArea.x * 0.5f);
+                float ChildrenCenterZ = Mathf.Round(L_Area[i].PlayArea.z * 0.5f);
+
+                //위치를 확인했다면 이제 나(i)를 중심으로 센터를 잡자
+                float ParentCenterX = Mathf.Round(L_Area[L_Area[i].ParentNum].PlayArea.x * 0.5f);
+                float ParentCenterZ = Mathf.Round(L_Area[L_Area[i].ParentNum].PlayArea.z * 0.5f);
+
+                //패스 연결
+                Vector3 PathMakeSize = new Vector3();
+
+                ////내가 방금 잡은 센터가 룸 에어리어에 포함되어 있는지 확인?? 지금 생각해보니 불필요할 지도
+                //Rect CenterInPlayArea = new Rect(L_Area[i].RoomPosition.x, L_Area[i].RoomPosition.z, L_Area[i].RoomSize.x, L_Area[i].RoomSize.z);
+                //bool InCheck = CenterInPlayArea.Contains(new Vector2(ChildrenCenterX, ChildrenCenterZ));
+
+
+
+
+
+
+
+
             }
         }
+    }
+    int SmallAndBigCheck(float a, float b)
+    {
+        if(a > b)
+        {
+            //오른쪽
+            return 1;
+        }
+        else if(a < b)
+        {
+            //왼쪽
+            return -1;
+        }
+        else
+            return 0;   //같다
     }
 }
