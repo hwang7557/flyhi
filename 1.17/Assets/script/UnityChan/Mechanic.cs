@@ -14,8 +14,7 @@ public class Mechanic : MonoBehaviour {
         E_DAMAGE,
         E_DIE,
     }
-    bool dd = true;
-
+    
     public float runSpeed = 0.0f;
     public float roataionSpeed = 360.0f;
 

@@ -6,7 +6,6 @@ using UnityEngine.UI;
 public class PopUpTest : MonoBehaviour {
 
     private Text itsMe;
-    private Text[] itsMe2;
     public InputField desc;
 
 	// Use this for initialization
