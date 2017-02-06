@@ -109,7 +109,6 @@
     <Compile Include="Assets\script\Move2.cs" />
     <Compile Include="Assets\script\PlayerCar.cs" />
     <Compile Include="Assets\script\Port\MyMaze.cs" />
-    <Compile Include="Assets\script\Port\TextureUVcontrol.cs" />
     <Compile Include="Assets\script\RayTest.cs" />
     <Compile Include="Assets\script\Rotation.cs" />
     <Compile Include="Assets\script\SceneManager.cs" />
