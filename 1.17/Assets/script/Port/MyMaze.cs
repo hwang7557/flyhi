@@ -8,13 +8,14 @@ public class MyMaze : MonoBehaviour {
 
     class MazeArea
     {
-        public Vector3 LocalArea;
-        public Vector3 PlayArea;
+        public Vector3 LocalArea; // 300, 0, 300
+        public Vector3 PlayArea; //-150, 0, 150
 
         public Vector3 RoomSize;
         public Vector3 RoomPosition;
 
-        public Vector3 CombineArea;
+        public Vector3 CombineAreaSize;
+        public Vector3 CombineAreaPosition;
 
         public int ParentNum;
     }
@@ -30,9 +31,13 @@ public class MyMaze : MonoBehaviour {
 
     Vector3 m_MapSize = new Vector3(300.0f, 0.0f, 300.0f);
 
+    GameObject PathPrefeb = null;
+
     // Use this for initialization
     void Start()
     {
+        PathPrefeb = Resources.Load("Prefebs/TestPath") as GameObject;
+
         MazeArea d = new MazeArea();
         d.LocalArea = m_MapSize;
         d.PlayArea = new Vector3(-150, 0, 150);
@@ -42,14 +47,21 @@ public class MyMaze : MonoBehaviour {
         MapMake();
         RoomMake();
         PathMake();
+        PathInstantiate();
     }
 
     // Update is called once per frame
     void Update()
     {
-
+        int b = 0;
+        if(b == 0)
+        {
+            int dd = 0;
+        }
     }
 
+
+    //---------------------------콤바인 사이즈 and 위치셋팅이 필요함.
     void MapMake()
     {
         int Count = L_Area.Count;
@@ -129,14 +141,21 @@ public class MyMaze : MonoBehaviour {
             int EmptySizeX = Random.Range(0, (int)ResulteMakeRoomSizeX);
             int EmptySizeZ = Random.Range(0, (int)ResulteMakeRoomSizeZ);
 
+            //이제 룸 사이즈를 내 리스트안에 넣어둔다.
+            L_Area[i].RoomSize = new Vector3(MakeRoomSizeX, 0, MakeRoomSizeZ);
+
             //Empty사이즈가 정해졌으면, 이제 나온 사이즈만큼 비워놓고 실제 위치에 더해준다.
             L_Area[i].RoomPosition = L_Area[i].PlayArea + new Vector3(EmptySizeX, 0, -EmptySizeZ);
 
-            //이제 룸 사이즈를 내 리스트안에 넣어둔다.
-            L_Area[i].RoomSize = new Vector3(MakeRoomSizeX, 0, MakeRoomSizeZ);
+            //이제 여기서 추가적으로 내 룸 사이즈의 1/2씩 +(오른쪽), -(아래)로 이동시켜서 룸 포지션을 다시 잡아줌
+            L_Area[i].RoomPosition = L_Area[i].RoomPosition + new Vector3(MakeRoomSizeX * 0.5f, 0, -MakeRoomSizeZ * 0.5f);
+
+
+
         }
     }
 
+    //----------------------------------------------------------------콤바인 에어리어를 전혀 사용하지 않고 있슴 로직에러임.
     void PathMake()
     {
         //패스를 만든다.
@@ -153,12 +172,13 @@ public class MyMaze : MonoBehaviour {
                 int AreaCheckZ = SmallAndBigCheck(L_Area[i].PlayArea.y, L_Area[L_Area[i].ParentNum].PlayArea.y);
 
                 //위치를 확인했다면 이제 나(i)를 중심으로 센터를 잡자
-                float ChildrenCenterX = Mathf.Round(L_Area[i].PlayArea.x * 0.5f);
-                float ChildrenCenterZ = Mathf.Round(L_Area[i].PlayArea.z * 0.5f);
+                ///-----------------------------------------------------여기 실수했네 플레이 영역의 50%가 아닌 전체의 50%가 깍이는 중
+                float ChildrenCenterX = Mathf.Round(L_Area[i].PlayArea.x + L_Area[i].LocalArea.x * 0.5f);
+                float ChildrenCenterZ = Mathf.Round(L_Area[i].PlayArea.z + L_Area[i].LocalArea.z * 0.5f);
 
                 //위치를 확인했다면 이제 나(i)를 중심으로 센터를 잡자
-                float ParentCenterX = Mathf.Round(L_Area[L_Area[i].ParentNum].PlayArea.x * 0.5f);
-                float ParentCenterZ = Mathf.Round(L_Area[L_Area[i].ParentNum].PlayArea.z * 0.5f);
+                float ParentCenterX = Mathf.Round(L_Area[L_Area[i].ParentNum].PlayArea.x + L_Area[L_Area[i].ParentNum].LocalArea.x * 0.5f);
+                float ParentCenterZ = Mathf.Round(L_Area[L_Area[i].ParentNum].PlayArea.z + L_Area[L_Area[i].ParentNum].LocalArea.z * 0.5f);
 
                 //패스 연결 사이즈 체크
                 PathArea PathTemp = new PathArea();
@@ -166,53 +186,71 @@ public class MyMaze : MonoBehaviour {
                     0.0f, Mathf.Abs(ChildrenCenterZ - ParentCenterZ));
 
                 //패스 사이즈가 0인 경우 사이즈를 5.0f까지 증가 시킴
-                if(PathTemp.PathSize.x == 0.0f)
+                if(L_Area[i].PlayArea.x == L_Area[L_Area[i].ParentNum].PlayArea.x)
                 {
                     PathTemp.PathSize.x = 5.0f;
                 }
-                else if (PathTemp.PathSize.z == 0.0f)
+                else if (L_Area[i].PlayArea.z == L_Area[L_Area[i].ParentNum].PlayArea.z)
                 {
                     PathTemp.PathSize.z = 5.0f;
                 }
 
-                PathTemp.PathLocalArea = new Vector3(ChildrenCenterX + ParentCenterX * AreaCheckX, 
-                    0, ChildrenCenterZ + ParentCenterZ * AreaCheckZ);
+                //패스의 실제 위치를 찾는다.
+                //현재 자식의 센터를 기준으로 뻗어나감.
 
-
-
-
-
-
-
-
-
-                //L_Path.Add();
-                //Vector3 PathMakeSize = 
-
+                
+                if(AreaCheckX == 0)
+                {
+                    PathTemp.PathLocalArea = new Vector3((ChildrenCenterX + (PathTemp.PathSize.x * AreaCheckX)) - 2.0f,
+                     0, ChildrenCenterZ + PathTemp.PathSize.z * AreaCheckZ);
+                }
+                else if(AreaCheckZ == 0)
+                {
+                    PathTemp.PathLocalArea = new Vector3(ChildrenCenterX + PathTemp.PathSize.x * AreaCheckX,
+                    0, ChildrenCenterZ + PathTemp.PathSize.z * AreaCheckZ - 2.0f);
+                }             
+                
+                L_Path.Add(PathTemp);
+                
                 ////내가 방금 잡은 센터가 룸 에어리어에 포함되어 있는지 확인?? 지금 생각해보니 불필요할 지도
                 //Rect CenterInPlayArea = new Rect(L_Area[i].RoomPosition.x, L_Area[i].RoomPosition.z, L_Area[i].RoomSize.x, L_Area[i].RoomSize.z);
                 //bool InCheck = CenterInPlayArea.Contains(new Vector2(ChildrenCenterX, ChildrenCenterZ));
-
-
-
-
-
-
-
-
+                   
             }
         }
     }
+
+    void PathInstantiate()
+    {
+        //맵 땅
+        for (int i =0; i < L_Area.Count; i++)
+        {
+            GameObject PathScaleChange = PathPrefeb;
+
+            PathScaleChange.transform.localScale = new Vector3(L_Area[i].RoomSize.x * 0.2f, L_Area[i].RoomSize.z * 0.2f, 1);
+            Instantiate(PathScaleChange, L_Area[i].RoomPosition, PathScaleChange.transform.rotation);
+        }
+
+        //맵 길
+        for (int i = 0; i < L_Path.Count; i++)
+        {
+            GameObject PathScaleChange = PathPrefeb;
+
+            PathScaleChange.transform.localScale = new Vector3(L_Path[i].PathSize.x * 0.2f, L_Path[i].PathSize.z * 0.2f, 1);
+            Instantiate(PathScaleChange, L_Path[i].PathLocalArea, PathScaleChange.transform.rotation);
+        }
+    }
+
     int SmallAndBigCheck(float a, float b)
     {
         if(a > b)
         {
-            //오른쪽
+            //오른쪽, 위
             return 1;
         }
         else if(a < b)
         {
-            //왼쪽
+            //왼쪽, 아래
             return -1;
         }
         else
