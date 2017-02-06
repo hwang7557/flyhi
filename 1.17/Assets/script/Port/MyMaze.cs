@@ -21,10 +21,8 @@ public class MyMaze : MonoBehaviour {
 
     class PathArea
     {
-        public Vector3 LocalArea;
-        public Vector3 PlayArea;
-
-        public int ParentNum;
+        public Vector3 PathSize;
+        public Vector3 PathLocalArea; //패스의 위치를 파악함.
     }
 
     List<MazeArea> L_Area = new List<MazeArea>();
@@ -152,7 +150,7 @@ public class MyMaze : MonoBehaviour {
 
                 //합쳐질 에어리어의 위치를 확인해야 함. 오른쪽인지 왼쪽인지 위쪽인지 아래인지
                 int AreaCheckX = SmallAndBigCheck(L_Area[i].PlayArea.x, L_Area[L_Area[i].ParentNum].PlayArea.x);
-                int AreaCheckY = SmallAndBigCheck(L_Area[i].PlayArea.y, L_Area[L_Area[i].ParentNum].PlayArea.y);
+                int AreaCheckZ = SmallAndBigCheck(L_Area[i].PlayArea.y, L_Area[L_Area[i].ParentNum].PlayArea.y);
 
                 //위치를 확인했다면 이제 나(i)를 중심으로 센터를 잡자
                 float ChildrenCenterX = Mathf.Round(L_Area[i].PlayArea.x * 0.5f);
@@ -162,8 +160,34 @@ public class MyMaze : MonoBehaviour {
                 float ParentCenterX = Mathf.Round(L_Area[L_Area[i].ParentNum].PlayArea.x * 0.5f);
                 float ParentCenterZ = Mathf.Round(L_Area[L_Area[i].ParentNum].PlayArea.z * 0.5f);
 
-                //패스 연결
-                Vector3 PathMakeSize = new Vector3();
+                //패스 연결 사이즈 체크
+                PathArea PathTemp = new PathArea();
+                PathTemp.PathSize = new Vector3(Mathf.Abs(ChildrenCenterX - ParentCenterX), 
+                    0.0f, Mathf.Abs(ChildrenCenterZ - ParentCenterZ));
+
+                //패스 사이즈가 0인 경우 사이즈를 5.0f까지 증가 시킴
+                if(PathTemp.PathSize.x == 0.0f)
+                {
+                    PathTemp.PathSize.x = 5.0f;
+                }
+                else if (PathTemp.PathSize.z == 0.0f)
+                {
+                    PathTemp.PathSize.z = 5.0f;
+                }
+
+                PathTemp.PathLocalArea = new Vector3(ChildrenCenterX + ParentCenterX * AreaCheckX, 
+                    0, ChildrenCenterZ + ParentCenterZ * AreaCheckZ);
+
+
+
+
+
+
+
+
+
+                //L_Path.Add();
+                //Vector3 PathMakeSize = 
 
                 ////내가 방금 잡은 센터가 룸 에어리어에 포함되어 있는지 확인?? 지금 생각해보니 불필요할 지도
                 //Rect CenterInPlayArea = new Rect(L_Area[i].RoomPosition.x, L_Area[i].RoomPosition.z, L_Area[i].RoomSize.x, L_Area[i].RoomSize.z);
