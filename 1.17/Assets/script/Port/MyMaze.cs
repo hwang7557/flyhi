@@ -14,8 +14,8 @@ public class MyMaze : MonoBehaviour {
         public Vector3 RoomSize;
         public Vector3 RoomPosition;
 
-        public Vector3 CombineAreaSize;
-        public Vector3 CombineAreaPosition;
+        public Vector3 CombineLocalArea;
+        public Vector3 CombinePlayArea;
 
         public int ParentNum;
     }
@@ -23,7 +23,8 @@ public class MyMaze : MonoBehaviour {
     class PathArea
     {
         public Vector3 PathSize;
-        public Vector3 PathLocalArea; //패스의 위치를 파악함.
+        public Vector3 PathLocalArea; //패스의 총 크기를 파악함
+        public Vector3 PathPlayArea; //패스의 실제 위치
     }
 
     List<MazeArea> L_Area = new List<MazeArea>();
@@ -42,6 +43,10 @@ public class MyMaze : MonoBehaviour {
         d.LocalArea = m_MapSize;
         d.PlayArea = new Vector3(-150, 0, 150);
         d.ParentNum = -1;
+        d.CombineLocalArea = m_MapSize;
+        d.CombinePlayArea = new Vector3(-150, 0, 150);
+
+
         L_Area.Add(d);
 
         MapMake();
@@ -72,39 +77,46 @@ public class MyMaze : MonoBehaviour {
 
             Vector3 LocalAreaTemp = L_Area[i].LocalArea;
             Vector3 PlayAreaTemp = L_Area[i].PlayArea;
+            Vector3 CombinePlayAreaTemp = L_Area[i].CombinePlayArea;
 
             if (L_Area[i].LocalArea.z >= L_Area[i].LocalArea.x)
             {
                 //Z
                 L_Area[i].LocalArea.z *= (0.1f * MazeSize);
                 L_Area[i].LocalArea.z = Mathf.Round(L_Area[i].LocalArea.z);
+                L_Area[i].CombineLocalArea.z *= (0.1f * MazeSize);
+                L_Area[i].CombineLocalArea.z = Mathf.Round(L_Area[i].CombineLocalArea.z);
 
                 PlayAreaTemp.z -= L_Area[i].LocalArea.z;
                 LocalAreaTemp.z -= L_Area[i].LocalArea.z;
 
-                MazeArea AddList = new MazeArea();
-                AddList.LocalArea = LocalAreaTemp;
-                AddList.PlayArea = PlayAreaTemp;
-                AddList.ParentNum = i;
+                CombinePlayAreaTemp.z -= L_Area[i].LocalArea.z;
 
-                L_Area.Add(AddList);
             }
             else
             {
                 //X
                 L_Area[i].LocalArea.x *= (0.1f * MazeSize);
                 L_Area[i].LocalArea.x = Mathf.Round(L_Area[i].LocalArea.x);
+                L_Area[i].CombineLocalArea.x *= (0.1f * MazeSize);
+                L_Area[i].CombineLocalArea.x = Mathf.Round(L_Area[i].CombineLocalArea.x);
 
-                PlayAreaTemp.x += L_Area[i].LocalArea.z;
+                PlayAreaTemp.x += L_Area[i].LocalArea.x;
                 LocalAreaTemp.x -= L_Area[i].LocalArea.x;
-                
-                MazeArea AddList = new MazeArea();
-                AddList.LocalArea = LocalAreaTemp;
-                AddList.PlayArea = PlayAreaTemp;
-                AddList.ParentNum = i;
 
-                L_Area.Add(AddList);
+                CombinePlayAreaTemp.z -= L_Area[i].LocalArea.x;
             }
+
+            MazeArea AddList = new MazeArea();
+            AddList.LocalArea = LocalAreaTemp;
+            AddList.PlayArea = PlayAreaTemp;
+            AddList.ParentNum = i;
+
+            AddList.CombineLocalArea = LocalAreaTemp;
+            AddList.CombinePlayArea = PlayAreaTemp;
+
+
+            L_Area.Add(AddList);
         }
 
         bool check = true;
@@ -145,6 +157,7 @@ public class MyMaze : MonoBehaviour {
             L_Area[i].RoomSize = new Vector3(MakeRoomSizeX, 0, MakeRoomSizeZ);
 
             //Empty사이즈가 정해졌으면, 이제 나온 사이즈만큼 비워놓고 실제 위치에 더해준다.
+            //----------------------여기 에러의 기운이 느껴집눼다.
             L_Area[i].RoomPosition = L_Area[i].PlayArea + new Vector3(EmptySizeX, 0, -EmptySizeZ);
 
             //이제 여기서 추가적으로 내 룸 사이즈의 1/2씩 +(오른쪽), -(아래)로 이동시켜서 룸 포지션을 다시 잡아줌
@@ -165,20 +178,33 @@ public class MyMaze : MonoBehaviour {
             if(L_Area[i].ParentNum != -1)
             {
                 //합칠 때 새로운 합쳐진 사이즈를 저장해야하기 때문에 CombineArea에 저장할 예정
-                L_Area[L_Area[i].ParentNum].CombineArea = L_Area[i].LocalArea + L_Area[L_Area[i].ParentNum].LocalArea;
+                //-------------------------으악!!! 같은 숫자는 더하면 안되지 ㅠㅠ
+
+                if(L_Area[i].CombineLocalArea.x == L_Area[L_Area[i].ParentNum].LocalArea.x)
+                {
+                    L_Area[L_Area[i].ParentNum].CombineLocalArea = L_Area[i].CombineLocalArea + new Vector3(0, 0, L_Area[L_Area[i].ParentNum].LocalArea.z) ;
+                    L_Area[L_Area[i].ParentNum].CombinePlayArea = L_Area[L_Area[i].ParentNum].PlayArea;
+                }
+                else if(L_Area[i].CombineLocalArea.z == L_Area[L_Area[i].ParentNum].LocalArea.z)
+                {
+                    L_Area[L_Area[i].ParentNum].CombineLocalArea = L_Area[i].CombineLocalArea + new Vector3(L_Area[L_Area[i].ParentNum].LocalArea.x, 0, 0);
+                    L_Area[L_Area[i].ParentNum].CombinePlayArea = L_Area[L_Area[i].ParentNum].PlayArea;
+                }
+
+                
 
                 //합쳐질 에어리어의 위치를 확인해야 함. 오른쪽인지 왼쪽인지 위쪽인지 아래인지
-                int AreaCheckX = SmallAndBigCheck(L_Area[i].PlayArea.x, L_Area[L_Area[i].ParentNum].PlayArea.x);
-                int AreaCheckZ = SmallAndBigCheck(L_Area[i].PlayArea.y, L_Area[L_Area[i].ParentNum].PlayArea.y);
+                int AreaCheckX = SmallAndBigCheck(L_Area[i].CombinePlayArea.x, L_Area[L_Area[i].ParentNum].PlayArea.x);
+                int AreaCheckZ = SmallAndBigCheck(L_Area[i].CombinePlayArea.z, L_Area[L_Area[i].ParentNum].PlayArea.z);
 
                 //위치를 확인했다면 이제 나(i)를 중심으로 센터를 잡자
                 ///-----------------------------------------------------여기 실수했네 플레이 영역의 50%가 아닌 전체의 50%가 깍이는 중
-                float ChildrenCenterX = Mathf.Round(L_Area[i].PlayArea.x + L_Area[i].LocalArea.x * 0.5f);
-                float ChildrenCenterZ = Mathf.Round(L_Area[i].PlayArea.z + L_Area[i].LocalArea.z * 0.5f);
+                float ChildrenCenterX = Mathf.Round(L_Area[i].CombinePlayArea.x + L_Area[i].CombineLocalArea.x * 0.5f);
+                float ChildrenCenterZ = Mathf.Round(L_Area[i].CombinePlayArea.z - L_Area[i].CombineLocalArea.z * 0.5f);
 
-                //위치를 확인했다면 이제 나(i)를 중심으로 센터를 잡자
+                //위치를 확인했다면 이제 부모를 중심으로 센터를 잡자
                 float ParentCenterX = Mathf.Round(L_Area[L_Area[i].ParentNum].PlayArea.x + L_Area[L_Area[i].ParentNum].LocalArea.x * 0.5f);
-                float ParentCenterZ = Mathf.Round(L_Area[L_Area[i].ParentNum].PlayArea.z + L_Area[L_Area[i].ParentNum].LocalArea.z * 0.5f);
+                float ParentCenterZ = Mathf.Round(L_Area[L_Area[i].ParentNum].PlayArea.z - L_Area[L_Area[i].ParentNum].LocalArea.z * 0.5f);
 
                 //패스 연결 사이즈 체크
                 PathArea PathTemp = new PathArea();
@@ -186,30 +212,43 @@ public class MyMaze : MonoBehaviour {
                     0.0f, Mathf.Abs(ChildrenCenterZ - ParentCenterZ));
 
                 //패스 사이즈가 0인 경우 사이즈를 5.0f까지 증가 시킴
-                if(L_Area[i].PlayArea.x == L_Area[L_Area[i].ParentNum].PlayArea.x)
+                if(L_Area[i].CombinePlayArea.x == L_Area[L_Area[i].ParentNum].PlayArea.x)
                 {
                     PathTemp.PathSize.x = 5.0f;
                 }
-                else if (L_Area[i].PlayArea.z == L_Area[L_Area[i].ParentNum].PlayArea.z)
+                else if (L_Area[i].CombinePlayArea.z == L_Area[L_Area[i].ParentNum].PlayArea.z)
                 {
                     PathTemp.PathSize.z = 5.0f;
                 }
 
                 //패스의 실제 위치를 찾는다.
-                //현재 자식의 센터를 기준으로 뻗어나감.
+                //-------------------------------------으악
 
                 
                 if(AreaCheckX == 0)
                 {
-                    PathTemp.PathLocalArea = new Vector3((ChildrenCenterX + (PathTemp.PathSize.x * AreaCheckX)) - 2.0f,
+                    PathTemp.PathLocalArea = new Vector3((ChildrenCenterX + (PathTemp.PathSize.x * AreaCheckX)),
                      0, ChildrenCenterZ + PathTemp.PathSize.z * AreaCheckZ);
+
+
+                    //각 에어리어의 중심점을 잡자
+                    PathTemp.PathPlayArea = new Vector3(L_Area[i].CombinePlayArea.x + (L_Area[i].CombineLocalArea.x * 0.5f) - 2.0f, 0,
+                    L_Area[i].CombinePlayArea.z - (L_Area[i].CombineLocalArea.z * 0.5f));
                 }
                 else if(AreaCheckZ == 0)
                 {
                     PathTemp.PathLocalArea = new Vector3(ChildrenCenterX + PathTemp.PathSize.x * AreaCheckX,
-                    0, ChildrenCenterZ + PathTemp.PathSize.z * AreaCheckZ - 2.0f);
-                }             
+                    0, ChildrenCenterZ + PathTemp.PathSize.z * AreaCheckZ);
+
+                    //각 에어리어의 중심점을 잡자
+                    PathTemp.PathPlayArea = new Vector3(L_Area[i].CombinePlayArea.x + (L_Area[i].CombineLocalArea.x * 0.5f), 0,
+                    L_Area[i].CombinePlayArea.z - (L_Area[i].CombineLocalArea.z * 0.5f) - 2.0f);
+                }
+
                 
+
+
+
                 L_Path.Add(PathTemp);
                 
                 ////내가 방금 잡은 센터가 룸 에어리어에 포함되어 있는지 확인?? 지금 생각해보니 불필요할 지도
@@ -237,7 +276,7 @@ public class MyMaze : MonoBehaviour {
             GameObject PathScaleChange = PathPrefeb;
 
             PathScaleChange.transform.localScale = new Vector3(L_Path[i].PathSize.x * 0.2f, L_Path[i].PathSize.z * 0.2f, 1);
-            Instantiate(PathScaleChange, L_Path[i].PathLocalArea, PathScaleChange.transform.rotation);
+            Instantiate(PathScaleChange, L_Path[i].PathPlayArea, PathScaleChange.transform.rotation);
         }
     }
 
