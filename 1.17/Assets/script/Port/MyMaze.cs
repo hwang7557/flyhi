@@ -24,12 +24,13 @@ public class MyMaze : MonoBehaviour {
     class PathArea
     {
         public Vector3 PathSize;
-        public Vector3 PathLocalArea; //패스의 총 크기를 파악함
         public Vector3 PathPlayArea; //패스의 실제 위치
     }
 
     List<MazeArea> L_Area = new List<MazeArea>();
     List<PathArea> L_Path = new List<PathArea>();
+
+    //Dictionary<int, List<PathArea>> L_PathList = new Dictionary<int, List<PathArea>>();
 
     Vector3 m_MapSize = new Vector3(300.0f, 0.0f, 300.0f);
 
@@ -176,7 +177,7 @@ public class MyMaze : MonoBehaviour {
         }
     }
 
-    //----------------------------------------------------------------콤바인 에어리어를 전혀 사용하지 않고 있슴 로직에러임.
+    //방향값 하나 넣어주자. 현재 어디로 향하는지
     void PathMake()
     {
         //패스를 만든다.
@@ -201,11 +202,10 @@ public class MyMaze : MonoBehaviour {
 
 
                 //합쳐질 에어리어의 위치를 확인해야 함. 오른쪽인지 왼쪽인지 위쪽인지 아래인지
-                int AreaCheckX = SmallAndBigCheck(L_Area[i].CombinePlayArea.x, L_Area[L_Area[i].ParentNum].PlayArea.x);
-                int AreaCheckZ = SmallAndBigCheck(L_Area[i].CombinePlayArea.z, L_Area[L_Area[i].ParentNum].PlayArea.z);
+                int AreaCheckX = SmallAndBigCheckLR(L_Area[i].CombinePlayArea.x, L_Area[L_Area[i].ParentNum].PlayArea.x);
+                int AreaCheckZ = SmallAndBigCheckLR(L_Area[i].CombinePlayArea.z, L_Area[L_Area[i].ParentNum].PlayArea.z);
 
                 //위치를 확인했다면 이제 나(i)를 중심으로 센터를 잡자
-                ///-----------------------------------------------------여기 실수했네 플레이 영역의 50%가 아닌 전체의 50%가 깍이는 중
                 float ChildrenCenterX = Mathf.Round(L_Area[i].CombinePlayArea.x + L_Area[i].CombineLocalArea.x * 0.5f);
                 float ChildrenCenterZ = Mathf.Round(L_Area[i].CombinePlayArea.z - L_Area[i].CombineLocalArea.z * 0.5f);
 
@@ -229,29 +229,46 @@ public class MyMaze : MonoBehaviour {
                 }
 
                 //패스의 실제 위치를 찾는다.
-                //-------------------------------------으악
+                //센터를 잡아주는 코드를 작성해야함.
 
-                
-                if(AreaCheckX == 0)
+                Vector3 TempCombinePlayArea = new Vector3(ChildrenCenterX, 0, ChildrenCenterZ);
+
+
+                //치명적인 문제 발생 왼쪽인 경우에는 이동시켜줘야하지만, 오른쪽인 경우에는 이동시킬 필요가 없슴.
+
+                //마찬가지로 위인 경우에는 위로 옮기고 아래인 경우에는 이동시킬 필요가 없슴.
+                //이걸 수치로 표현하자면, -1(왼쪽,아래), 1(오른쪽,위)                
+                if (AreaCheckX == -1 || AreaCheckZ == 1)
                 {
-                    PathTemp.PathLocalArea = new Vector3((ChildrenCenterX + (PathTemp.PathSize.x * AreaCheckX)),
-                     0, ChildrenCenterZ + PathTemp.PathSize.z * AreaCheckZ);
-
-                    //각 에어리어의 중심점을 잡자
-                    PathTemp.PathPlayArea = new Vector3(L_Area[i].CombinePlayArea.x + (L_Area[i].CombineLocalArea.x * 0.5f) - 2.0f, 0,
-                    L_Area[i].CombinePlayArea.z - (L_Area[i].CombineLocalArea.z * 0.5f));
+                    if (AreaCheckX == 0)
+                    {
+                        PathTemp.PathPlayArea = new Vector3(TempCombinePlayArea.x+ (PathTemp.PathSize.x * AreaCheckX) - 2.0f, 0,
+                   TempCombinePlayArea.z + (PathTemp.PathSize.z * AreaCheckZ));
+                    }
+                    else
+                    {
+                        PathTemp.PathPlayArea = new Vector3(TempCombinePlayArea.x + (PathTemp.PathSize.x * AreaCheckX), 0,
+                   TempCombinePlayArea.z - (PathTemp.PathSize.z * AreaCheckZ) - 2.0f);
+                    }
+               
                 }
-                else if(AreaCheckZ == 0)
+                else
                 {
-                    PathTemp.PathLocalArea = new Vector3(ChildrenCenterX + PathTemp.PathSize.x * AreaCheckX,
-                    0, ChildrenCenterZ + PathTemp.PathSize.z * AreaCheckZ);
-
-                    //각 에어리어의 중심점을 잡자
-                    PathTemp.PathPlayArea = new Vector3(L_Area[i].CombinePlayArea.x + (L_Area[i].CombineLocalArea.x * 0.5f), 0,
-                    L_Area[i].CombinePlayArea.z - (L_Area[i].CombineLocalArea.z * 0.5f) - 2.0f);
+                    if(AreaCheckX == 0)
+                    {
+                        PathTemp.PathPlayArea = new Vector3(TempCombinePlayArea.x, 0, TempCombinePlayArea.z - 2.0f);
+                    }
+                    else
+                    {
+                        PathTemp.PathPlayArea = new Vector3(TempCombinePlayArea.x - 2.0f, 0, TempCombinePlayArea.z);
+                    }
+                    
                 }
 
-                
+
+                PathTemp.PathPlayArea = new Vector3(PathTemp.PathPlayArea.x + (PathTemp.PathSize.x * 0.5f), 0,
+                    PathTemp.PathPlayArea.z - (PathTemp.PathSize.z * 0.5f));
+
 
 
 
@@ -264,6 +281,12 @@ public class MyMaze : MonoBehaviour {
             }
         }
     }
+
+    //이번엔 연결된 길의 위치랑 방포지션이 겹치는지 확인
+    //확인하는 경우 1. 방이 겹쳤을 때 불필요한 길 부분 제거
+    //2. 방이 겹치지 않았을 때 연결
+    //3. 
+
 
     void PathInstantiate()
     {
@@ -286,7 +309,7 @@ public class MyMaze : MonoBehaviour {
         }
     }
 
-    int SmallAndBigCheck(float a, float b)
+    int SmallAndBigCheckUD(float a, float b)
     {
         if(a > b)
         {
@@ -294,6 +317,23 @@ public class MyMaze : MonoBehaviour {
             return 1;
         }
         else if(a < b)
+        {
+            //왼쪽, 아래
+            return -1;
+        }
+        else
+            return 0;   //같다
+    }
+
+
+    int SmallAndBigCheckLR(float a, float b)
+    {
+        if (a < b)
+        {
+            //오른쪽, 위
+            return 1;
+        }
+        else if (a > b)
         {
             //왼쪽, 아래
             return -1;
