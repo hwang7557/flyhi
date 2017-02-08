@@ -18,6 +18,7 @@ public class MyMaze : MonoBehaviour {
         public Vector3 CombinePlayArea;
 
         public int ParentNum;
+        public int DivideNum;
     }
 
     class PathArea
@@ -47,6 +48,7 @@ public class MyMaze : MonoBehaviour {
         d.CombinePlayArea = new Vector3(-150, 0, 150);
 
 
+
         L_Area.Add(d);
 
         MapMake();
@@ -74,10 +76,12 @@ public class MyMaze : MonoBehaviour {
         for (int i = 0; i < Count; i++)
         {
             int MazeSize = Random.Range(3, 7);
+            //int MazeSize = 5;
 
             Vector3 LocalAreaTemp = L_Area[i].LocalArea;
             Vector3 PlayAreaTemp = L_Area[i].PlayArea;
             Vector3 CombinePlayAreaTemp = L_Area[i].CombinePlayArea;
+            int TempDividNumber = -1;
 
             if (L_Area[i].LocalArea.z >= L_Area[i].LocalArea.x)
             {
@@ -86,11 +90,13 @@ public class MyMaze : MonoBehaviour {
                 L_Area[i].LocalArea.z = Mathf.Round(L_Area[i].LocalArea.z);
                 L_Area[i].CombineLocalArea.z *= (0.1f * MazeSize);
                 L_Area[i].CombineLocalArea.z = Mathf.Round(L_Area[i].CombineLocalArea.z);
+                TempDividNumber = 0;
 
                 PlayAreaTemp.z -= L_Area[i].LocalArea.z;
                 LocalAreaTemp.z -= L_Area[i].LocalArea.z;
 
                 CombinePlayAreaTemp.z -= L_Area[i].LocalArea.z;
+
 
             }
             else
@@ -100,6 +106,7 @@ public class MyMaze : MonoBehaviour {
                 L_Area[i].LocalArea.x = Mathf.Round(L_Area[i].LocalArea.x);
                 L_Area[i].CombineLocalArea.x *= (0.1f * MazeSize);
                 L_Area[i].CombineLocalArea.x = Mathf.Round(L_Area[i].CombineLocalArea.x);
+                TempDividNumber = 1;
 
                 PlayAreaTemp.x += L_Area[i].LocalArea.x;
                 LocalAreaTemp.x -= L_Area[i].LocalArea.x;
@@ -111,6 +118,7 @@ public class MyMaze : MonoBehaviour {
             AddList.LocalArea = LocalAreaTemp;
             AddList.PlayArea = PlayAreaTemp;
             AddList.ParentNum = i;
+            AddList.DivideNum = TempDividNumber;
 
             AddList.CombineLocalArea = LocalAreaTemp;
             AddList.CombinePlayArea = PlayAreaTemp;
@@ -177,30 +185,16 @@ public class MyMaze : MonoBehaviour {
         {
             if(L_Area[i].ParentNum != -1)
             {
-                //합칠 때 새로운 합쳐진 사이즈를 저장해야하기 때문에 CombineArea에 저장할 예정
-                //--------------아아아 -_-결국 저쪽 로칼 에어리어도 콤바인으로 해줘야 됨.
-                //if (L_Area[i].CombineLocalArea.x == L_Area[L_Area[i].ParentNum].CombineLocalArea.x)
-                //{
-                    
-                //}
-                //else if (L_Area[i].CombineLocalArea.z == L_Area[L_Area[i].ParentNum].CombineLocalArea.z)
-                //{
-                    
-                //}
 
                 //콤바인 버전2
-                float CombineX = L_Area[i].CombineLocalArea.x + L_Area[L_Area[i].ParentNum].CombineLocalArea.x;
-                float CombineZ = L_Area[i].CombineLocalArea.z + L_Area[L_Area[i].ParentNum].CombineLocalArea.z;
-
-                if(CombineZ >= CombineX)
-                {
-                    L_Area[L_Area[i].ParentNum].CombineLocalArea = L_Area[i].CombineLocalArea + new Vector3(L_Area[L_Area[i].ParentNum].CombineLocalArea.x, 0, 0);
-                    L_Area[L_Area[i].ParentNum].CombinePlayArea = L_Area[L_Area[i].ParentNum].PlayArea;
-                    
-                }
-                else
+                if(L_Area[i].DivideNum == 0)
                 {
                     L_Area[L_Area[i].ParentNum].CombineLocalArea = L_Area[i].CombineLocalArea + new Vector3(0, 0, L_Area[L_Area[i].ParentNum].CombineLocalArea.z);
+                    L_Area[L_Area[i].ParentNum].CombinePlayArea = L_Area[L_Area[i].ParentNum].PlayArea;
+                }
+                else if (L_Area[i].DivideNum == 1)
+                {   
+                    L_Area[L_Area[i].ParentNum].CombineLocalArea = L_Area[i].CombineLocalArea + new Vector3(L_Area[L_Area[i].ParentNum].CombineLocalArea.x, 0, 0);
                     L_Area[L_Area[i].ParentNum].CombinePlayArea = L_Area[L_Area[i].ParentNum].PlayArea;
                 }
 
