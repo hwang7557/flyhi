@@ -55,6 +55,7 @@ public class MyMaze : MonoBehaviour {
         MapMake();
         RoomMake();
         PathMake();
+        PathOverLapCheck();
         PathInstantiate();
     }
 
@@ -286,6 +287,77 @@ public class MyMaze : MonoBehaviour {
     //확인하는 경우 1. 방이 겹쳤을 때 불필요한 길 부분 제거
     //2. 방이 겹치지 않았을 때 연결
     //3. 
+
+
+    void PathOverLapCheck()
+    {
+        int PathCount = 0;
+
+        for(int i = L_Area.Count - 1; i > 0; i--)
+        {
+            Rect MyRoom = new Rect(L_Area[i].RoomPosition.x - L_Area[i].RoomSize.x * 0.5f,
+                L_Area[i].RoomPosition.z - L_Area[i].RoomSize.z * 0.5f,
+                L_Area[i].RoomSize.x,
+                L_Area[i].RoomSize.z);
+
+            Rect ParentRoom = new Rect(L_Area[L_Area[i].ParentNum].RoomPosition.x - L_Area[L_Area[i].ParentNum].RoomSize.x * 0.5f,
+                L_Area[L_Area[i].ParentNum].RoomPosition.z - L_Area[L_Area[i].ParentNum].RoomSize.z * 0.5f,
+                L_Area[L_Area[i].ParentNum].RoomSize.x,
+                L_Area[L_Area[i].ParentNum].RoomSize.z);
+
+
+
+
+            for(int j = 0; j < L_Path.Count; j++)
+            {
+                Rect Path = new Rect(L_Path[j].PathPlayArea.x - L_Path[j].PathSize.x * 0.5f,
+                L_Path[j].PathPlayArea.z - L_Path[j].PathSize.z * 0.5f,
+                L_Path[j].PathSize.x,
+                L_Path[j].PathSize.z);
+
+
+                //MyRoom에 길이 어느정도 겹치는지 확인한다.
+                if (MyRoom.x < Path.xMax &&
+                   MyRoom.xMax > Path.x &&
+                   MyRoom.y > Path.y - Path.height &&
+                   MyRoom.y - MyRoom.height < Path.y)
+                {
+                    //이제 충돌을 했다면 어디로 충돌했는지 확인하며,
+                    //해당 충돌이 길에서 겹치는 만큼 길을 제거해주며,
+                    //현재 [i]에 입구를 나타내는 구역을 설정해줌.
+                    float Left = MyRoom.x > Path.x ? MyRoom.x : Path.x;
+                    float Right = MyRoom.xMax > Path.xMax ? MyRoom.xMax : Path.xMax;
+                    float top = MyRoom.y < Path.y ? MyRoom.y : Path.y;
+                    float Bottom = MyRoom.y - MyRoom.height > Path.y - Path.height ? MyRoom.y - MyRoom.height : Path.y - Path.height;
+
+
+                    int dd = 123;
+
+                }
+                else
+                {
+                    //다만 이것은 경우 충분히 근처에있다는 전제가 작동해야함.
+                }
+
+                //MyRoom에 길이 어느정도 겹치는지 확인한다.
+                if (ParentRoom.x < Path.xMax &&
+                   ParentRoom.xMax > Path.x &&
+                   ParentRoom.y > Path.y - Path.height &&
+                   ParentRoom.y - ParentRoom.height < Path.y)
+                {
+                    int d = 123;
+                }
+
+
+            }
+
+
+
+
+
+            PathCount++;
+        }
+    }
 
 
     void PathInstantiate()
