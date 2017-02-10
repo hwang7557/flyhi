@@ -29,9 +29,8 @@ public class MyMaze : MonoBehaviour
     }
 
     List<MazeArea> L_Area = new List<MazeArea>();
-    List<PathArea> L_Path = new List<PathArea>();
-
-    //Dictionary<int, List<PathArea>> L_PathList = new Dictionary<int, List<PathArea>>();
+   
+    Dictionary<int, List<PathArea>> L_PathList = new Dictionary<int, List<PathArea>>();
 
     Vector3 m_MapSize = new Vector3(300.0f, 0.0f, 300.0f);
 
@@ -273,8 +272,13 @@ public class MyMaze : MonoBehaviour
 
 
 
+                List<PathArea> p = new List<PathArea>();
+                p.Add(PathTemp);
 
-                L_Path.Add(PathTemp);
+                L_PathList.Add(L_PathList.Count, p);
+                
+
+                
 
                 ////내가 방금 잡은 센터가 룸 에어리어에 포함되어 있는지 확인?? 지금 생각해보니 불필요할 지도
                 //Rect CenterInPlayArea = new Rect(L_Area[i].RoomPosition.x, L_Area[i].RoomPosition.z, L_Area[i].RoomSize.x, L_Area[i].RoomSize.z);
@@ -292,8 +296,6 @@ public class MyMaze : MonoBehaviour
 
     void PathOverLapCheck()
     {
-        int PathCount = 0;
-
         for (int i = L_Area.Count - 1; i > 0; i--)
         {
             Rect MyRoom = new Rect(L_Area[i].RoomPosition.x - L_Area[i].RoomSize.x * 0.5f,
@@ -309,54 +311,101 @@ public class MyMaze : MonoBehaviour
 
 
 
-            for (int j = 0; j < L_Path.Count; j++)
+            for (int j = 0; j < L_PathList.Count; j++)
             {
-                Rect Path = new Rect(L_Path[j].PathPlayArea.x - L_Path[j].PathSize.x * 0.5f,
-                L_Path[j].PathPlayArea.z - L_Path[j].PathSize.z * 0.5f,
-                L_Path[j].PathSize.x,
-                L_Path[j].PathSize.z);
-
-
-                //MyRoom에 길이 어느정도 겹치는지 확인한다.
-                if (MyRoom.x < Path.xMax &&
-                   MyRoom.xMax > Path.x &&
-                   MyRoom.y > Path.y - Path.height &&
-                   MyRoom.y - MyRoom.height < Path.y)
+                for(int k = 0; k < L_PathList[j].Count; k++)
                 {
-                    //이제 충돌을 했다면 어디로 충돌했는지 확인하며,
-                    //해당 충돌이 길에서 겹치는 만큼 길을 제거해주며,
-                    //현재 [i]에 입구를 나타내는 구역을 설정해줌.
-                    float Left = MyRoom.x > Path.x ? MyRoom.x : Path.x;
-                    float Right = MyRoom.xMax > Path.xMax ? MyRoom.xMax : Path.xMax;
-                    float top = MyRoom.y < Path.y ? MyRoom.y : Path.y;
-                    float Bottom = MyRoom.y - MyRoom.height > Path.y - Path.height ? MyRoom.y - MyRoom.height : Path.y - Path.height;
+                    Rect Path = new Rect(L_PathList[j][k].PathPlayArea.x - L_PathList[j][k].PathSize.x * 0.5f,
+                   L_PathList[j][k].PathPlayArea.z - L_PathList[j][k].PathSize.z * 0.5f,
+                   L_PathList[j][k].PathSize.x,
+                   L_PathList[j][k].PathSize.z);
 
 
-                    int dd = 123;
 
+                    //MyRoom에 길이 어느정도 겹치는지 확인한다.
+                    if (MyRoom.x < Path.xMax &&
+                       MyRoom.xMax > Path.x &&
+                       MyRoom.y > Path.y - Path.height &&
+                       MyRoom.y - MyRoom.height < Path.y)
+                    {
+                        //이제 충돌을 했다면 어디로 충돌했는지 확인하며,
+                        //해당 충돌이 길에서 겹치는 만큼 길을 제거해주며,
+                        //현재 [i]에 입구를 나타내는 구역을 설정해줌.
+                        float Left = MyRoom.x > Path.x ? MyRoom.x : Path.x;
+                        float Right = MyRoom.xMax < Path.xMax ? MyRoom.xMax : Path.xMax;
+                        float top = Mathf.Min(MyRoom.y, Path.y);
+                        float Bottom = Mathf.Max(MyRoom.y - MyRoom.height, Path.y - Path.height);
+
+                        int sdf = 123;
+                    }
+                    else
+                    {
+                        Rect MyPlayArea = new Rect(L_Area[i].PlayArea.x - L_Area[i].PlayArea.x * 0.5f,
+                        L_Area[i].PlayArea.z - L_Area[i].PlayArea.z * 0.5f,
+                        L_Area[i].LocalArea.x,
+                        L_Area[i].LocalArea.z);
+
+                        //다만 이것은 경우 충분히 근처에있다는 전제가 작동해야함.
+                        if (MyPlayArea.x < Path.xMax &&
+                       MyPlayArea.xMax > Path.x &&
+                       MyPlayArea.y > Path.y - Path.height &&
+                       MyPlayArea.y - MyPlayArea.height < Path.y)
+                        {
+                            RoomAndPathDirection(MyRoom, Path);
+                        }
+                    }
+
+                    //MyRoom에 길이 어느정도 겹치는지 확인한다.
+                    if (ParentRoom.x < Path.xMax &&
+                       ParentRoom.xMax > Path.x &&
+                       ParentRoom.y > Path.y - Path.height &&
+                       ParentRoom.y - ParentRoom.height < Path.y)
+                    {
+                        //기준.Left > 대상.Left (기준 레프트가 대상 레프트보다 크다는건 -> + 방향기준으로 보면
+                        //대상의 오른쪽에 있다는 말이다.
+                        //           ---
+                        //        --|-  |
+                        //        |  |--
+                        //        ---
+
+
+                        float Left = ParentRoom.x > Path.x ? ParentRoom.x : Path.x;
+                        float Right = ParentRoom.xMax < Path.xMax ? ParentRoom.xMax : Path.xMax;
+                        float top = Mathf.Min(ParentRoom.y, Path.y);
+                        float Bottom = Mathf.Max(ParentRoom.y - ParentRoom.height, Path.y - Path.height);
+                        //1늘리고0.5 이동시킴
+                        int d = 123;
+                    }
+                    else
+                    {
+                        Rect ParentPlayArea = new Rect(L_Area[L_Area[i].ParentNum].PlayArea.x - L_Area[L_Area[i].ParentNum].PlayArea.x * 0.5f,
+                            L_Area[L_Area[i].ParentNum].PlayArea.z - L_Area[L_Area[i].ParentNum].PlayArea.z * 0.5f,
+                            L_Area[L_Area[i].ParentNum].LocalArea.x,
+                            L_Area[L_Area[i].ParentNum].LocalArea.z);
+
+
+                        //다만 이것은 경우 충분히 근처에있다는 전제가 작동해야함.
+                        if (ParentPlayArea.x < Path.xMax &&
+                       ParentPlayArea.xMax > Path.x &&
+                       ParentPlayArea.y > Path.y - Path.height &&
+                       ParentPlayArea.y - ParentPlayArea.height < Path.y)
+                        {
+                            //1. 부모렉트와 내 렉트를 비교하여 현재 패스와 부모의 위치를 파악해본다.
+                            //2. 기준을 잡을 때는 함수(부모렉트, 패스)를 기준으로 잡는다.
+                            //3. 패스의 모양을 체크 후 부모와의 연결 가능성을 감안함.
+                            //4. 패스가 길어지는 것만으로도 연결될 수 있다면 연결하고 새로운 딕셔너리 방식의 길을 추가해야함.
+
+                            RoomAndPathDirection(ParentRoom, Path);
+
+                            int sdf = 123;
+                        }
+                    }
                 }
-                else
-                {
-                    //다만 이것은 경우 충분히 근처에있다는 전제가 작동해야함.
-                }
 
-                //MyRoom에 길이 어느정도 겹치는지 확인한다.
-                if (ParentRoom.x < Path.xMax &&
-                   ParentRoom.xMax > Path.x &&
-                   ParentRoom.y > Path.y - Path.height &&
-                   ParentRoom.y - ParentRoom.height < Path.y)
-                {
-                    int d = 123;
-                }
+               
 
 
             }
-
-
-
-
-
-            PathCount++;
         }
     }
 
@@ -373,12 +422,15 @@ public class MyMaze : MonoBehaviour
         }
 
         //맵 길
-        for (int i = 0; i < L_Path.Count; i++)
+        for (int i = 0; i < L_PathList.Count; i++)
         {
-            GameObject PathScaleChange = PathPrefeb;
+            for(int j = 0; j < L_PathList[j].Count; j++)
+            {
+                GameObject PathScaleChange = PathPrefeb;
 
-            PathScaleChange.transform.localScale = new Vector3(L_Path[i].PathSize.x * 0.2f, L_Path[i].PathSize.z * 0.2f, 1);
-            Instantiate(PathScaleChange, L_Path[i].PathPlayArea, PathScaleChange.transform.rotation);
+                PathScaleChange.transform.localScale = new Vector3(L_PathList[i][j].PathSize.x * 0.2f, L_PathList[i][j].PathSize.z * 0.2f, 1);
+                Instantiate(PathScaleChange, L_PathList[i][j].PathPlayArea, PathScaleChange.transform.rotation);
+            }
         }
     }
 
@@ -413,5 +465,18 @@ public class MyMaze : MonoBehaviour
         }
         else
             return 0;   //같다
+    }
+
+
+    Vector4 RoomAndPathDirection(Rect Room, Rect Path)
+    {
+        float DistanceLeft = Room.x - Path.x;
+        float DistanceRight = Room.xMax - Path.xMax;
+        float DistanceTop = -(Room.y - Path.y);
+        float DistanceBottom = -((Room.y - Room.height) - (Path.y - Path.height));
+
+        Vector4 TempVector = new Vector4(DistanceLeft, DistanceRight, DistanceTop, DistanceBottom);
+
+        return TempVector;
     }
 }
