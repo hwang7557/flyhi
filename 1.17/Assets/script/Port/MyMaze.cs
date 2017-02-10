@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MyMaze : MonoBehaviour {
+public class MyMaze : MonoBehaviour
+{
 
     int MazeMakeCount = 0;
 
@@ -55,6 +56,7 @@ public class MyMaze : MonoBehaviour {
         MapMake();
         RoomMake();
         PathMake();
+        PathOverLapCheck();
         PathInstantiate();
     }
 
@@ -62,7 +64,7 @@ public class MyMaze : MonoBehaviour {
     void Update()
     {
         int b = 0;
-        if(b == 0)
+        if (b == 0)
         {
             int dd = 0;
         }
@@ -138,7 +140,7 @@ public class MyMaze : MonoBehaviour {
             }
         }
 
-        if(check)
+        if (check)
         {
             MazeMakeCount++;
             MapMake();
@@ -147,10 +149,10 @@ public class MyMaze : MonoBehaviour {
 
     void RoomMake()
     {
-        for(int i = 0; i < L_Area.Count; i++)
+        for (int i = 0; i < L_Area.Count; i++)
         {
             //게임에 적용될 룸 사이즈를 랜덤하게 출력
-            int MakeRoomSizeX = Random.Range((int)(Mathf.Round(L_Area[i].LocalArea.x * 0.5f)),(int)(L_Area[i].LocalArea.x - 1.0f));
+            int MakeRoomSizeX = Random.Range((int)(Mathf.Round(L_Area[i].LocalArea.x * 0.5f)), (int)(L_Area[i].LocalArea.x - 1.0f));
             int MakeRoomSizeZ = Random.Range((int)(Mathf.Round(L_Area[i].LocalArea.z * 0.5f)), (int)(L_Area[i].LocalArea.z - 1.0f));
 
 
@@ -184,17 +186,17 @@ public class MyMaze : MonoBehaviour {
         //우선 마지막 패스부터 차근차근 연결한다.
         for (int i = L_Area.Count - 1; i > 0; i--)
         {
-            if(L_Area[i].ParentNum != -1)
+            if (L_Area[i].ParentNum != -1)
             {
 
                 //콤바인 버전2
-                if(L_Area[i].DivideNum == 0)
+                if (L_Area[i].DivideNum == 0)
                 {
                     L_Area[L_Area[i].ParentNum].CombineLocalArea = L_Area[i].CombineLocalArea + new Vector3(0, 0, L_Area[L_Area[i].ParentNum].CombineLocalArea.z);
                     L_Area[L_Area[i].ParentNum].CombinePlayArea = L_Area[L_Area[i].ParentNum].PlayArea;
                 }
                 else if (L_Area[i].DivideNum == 1)
-                {   
+                {
                     L_Area[L_Area[i].ParentNum].CombineLocalArea = L_Area[i].CombineLocalArea + new Vector3(L_Area[L_Area[i].ParentNum].CombineLocalArea.x, 0, 0);
                     L_Area[L_Area[i].ParentNum].CombinePlayArea = L_Area[L_Area[i].ParentNum].PlayArea;
                 }
@@ -215,11 +217,11 @@ public class MyMaze : MonoBehaviour {
 
                 //패스 연결 사이즈 체크
                 PathArea PathTemp = new PathArea();
-                PathTemp.PathSize = new Vector3(Mathf.Abs(ChildrenCenterX - ParentCenterX), 
+                PathTemp.PathSize = new Vector3(Mathf.Abs(ChildrenCenterX - ParentCenterX),
                     0.0f, Mathf.Abs(ChildrenCenterZ - ParentCenterZ));
 
                 //패스 사이즈가 0인 경우 사이즈를 5.0f까지 증가 시킴
-                if(L_Area[i].CombinePlayArea.x == L_Area[L_Area[i].ParentNum].PlayArea.x)
+                if (L_Area[i].CombinePlayArea.x == L_Area[L_Area[i].ParentNum].PlayArea.x)
                 {
                     PathTemp.PathSize.x = 5.0f;
                 }
@@ -242,7 +244,7 @@ public class MyMaze : MonoBehaviour {
                 {
                     if (AreaCheckX == 0)
                     {
-                        PathTemp.PathPlayArea = new Vector3(TempCombinePlayArea.x+ (PathTemp.PathSize.x * AreaCheckX) - 2.0f, 0,
+                        PathTemp.PathPlayArea = new Vector3(TempCombinePlayArea.x + (PathTemp.PathSize.x * AreaCheckX) - 2.0f, 0,
                    TempCombinePlayArea.z + (PathTemp.PathSize.z * AreaCheckZ));
                     }
                     else
@@ -250,11 +252,11 @@ public class MyMaze : MonoBehaviour {
                         PathTemp.PathPlayArea = new Vector3(TempCombinePlayArea.x + (PathTemp.PathSize.x * AreaCheckX), 0,
                    TempCombinePlayArea.z - (PathTemp.PathSize.z * AreaCheckZ) - 2.0f);
                     }
-               
+
                 }
                 else
                 {
-                    if(AreaCheckX == 0)
+                    if (AreaCheckX == 0)
                     {
                         PathTemp.PathPlayArea = new Vector3(TempCombinePlayArea.x, 0, TempCombinePlayArea.z - 2.0f);
                     }
@@ -262,7 +264,7 @@ public class MyMaze : MonoBehaviour {
                     {
                         PathTemp.PathPlayArea = new Vector3(TempCombinePlayArea.x - 2.0f, 0, TempCombinePlayArea.z);
                     }
-                    
+
                 }
 
 
@@ -273,11 +275,11 @@ public class MyMaze : MonoBehaviour {
 
 
                 L_Path.Add(PathTemp);
-                
+
                 ////내가 방금 잡은 센터가 룸 에어리어에 포함되어 있는지 확인?? 지금 생각해보니 불필요할 지도
                 //Rect CenterInPlayArea = new Rect(L_Area[i].RoomPosition.x, L_Area[i].RoomPosition.z, L_Area[i].RoomSize.x, L_Area[i].RoomSize.z);
                 //bool InCheck = CenterInPlayArea.Contains(new Vector2(ChildrenCenterX, ChildrenCenterZ));
-                   
+
             }
         }
     }
@@ -288,10 +290,81 @@ public class MyMaze : MonoBehaviour {
     //3. 
 
 
+    void PathOverLapCheck()
+    {
+        int PathCount = 0;
+
+        for (int i = L_Area.Count - 1; i > 0; i--)
+        {
+            Rect MyRoom = new Rect(L_Area[i].RoomPosition.x - L_Area[i].RoomSize.x * 0.5f,
+                L_Area[i].RoomPosition.z - L_Area[i].RoomSize.z * 0.5f,
+                L_Area[i].RoomSize.x,
+                L_Area[i].RoomSize.z);
+
+            Rect ParentRoom = new Rect(L_Area[L_Area[i].ParentNum].RoomPosition.x - L_Area[L_Area[i].ParentNum].RoomSize.x * 0.5f,
+                L_Area[L_Area[i].ParentNum].RoomPosition.z - L_Area[L_Area[i].ParentNum].RoomSize.z * 0.5f,
+                L_Area[L_Area[i].ParentNum].RoomSize.x,
+                L_Area[L_Area[i].ParentNum].RoomSize.z);
+
+
+
+
+            for (int j = 0; j < L_Path.Count; j++)
+            {
+                Rect Path = new Rect(L_Path[j].PathPlayArea.x - L_Path[j].PathSize.x * 0.5f,
+                L_Path[j].PathPlayArea.z - L_Path[j].PathSize.z * 0.5f,
+                L_Path[j].PathSize.x,
+                L_Path[j].PathSize.z);
+
+
+                //MyRoom에 길이 어느정도 겹치는지 확인한다.
+                if (MyRoom.x < Path.xMax &&
+                   MyRoom.xMax > Path.x &&
+                   MyRoom.y > Path.y - Path.height &&
+                   MyRoom.y - MyRoom.height < Path.y)
+                {
+                    //이제 충돌을 했다면 어디로 충돌했는지 확인하며,
+                    //해당 충돌이 길에서 겹치는 만큼 길을 제거해주며,
+                    //현재 [i]에 입구를 나타내는 구역을 설정해줌.
+                    float Left = MyRoom.x > Path.x ? MyRoom.x : Path.x;
+                    float Right = MyRoom.xMax > Path.xMax ? MyRoom.xMax : Path.xMax;
+                    float top = MyRoom.y < Path.y ? MyRoom.y : Path.y;
+                    float Bottom = MyRoom.y - MyRoom.height > Path.y - Path.height ? MyRoom.y - MyRoom.height : Path.y - Path.height;
+
+
+                    int dd = 123;
+
+                }
+                else
+                {
+                    //다만 이것은 경우 충분히 근처에있다는 전제가 작동해야함.
+                }
+
+                //MyRoom에 길이 어느정도 겹치는지 확인한다.
+                if (ParentRoom.x < Path.xMax &&
+                   ParentRoom.xMax > Path.x &&
+                   ParentRoom.y > Path.y - Path.height &&
+                   ParentRoom.y - ParentRoom.height < Path.y)
+                {
+                    int d = 123;
+                }
+
+
+            }
+
+
+
+
+
+            PathCount++;
+        }
+    }
+
+
     void PathInstantiate()
     {
         //맵 땅
-        for (int i =0; i < L_Area.Count; i++)
+        for (int i = 0; i < L_Area.Count; i++)
         {
             GameObject PathScaleChange = PathPrefeb;
 
@@ -311,12 +384,12 @@ public class MyMaze : MonoBehaviour {
 
     int SmallAndBigCheckUD(float a, float b)
     {
-        if(a > b)
+        if (a > b)
         {
             //오른쪽, 위
             return 1;
         }
-        else if(a < b)
+        else if (a < b)
         {
             //왼쪽, 아래
             return -1;
