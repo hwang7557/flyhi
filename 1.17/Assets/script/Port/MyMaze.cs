@@ -7,6 +7,19 @@ public class MyMaze : MonoBehaviour
 
     int MazeMakeCount = 0;
 
+    enum PathDirection
+    {
+        E_LEFTUP = 0,
+        E_UP,
+        E_RIGHTUP,
+        E_LEFT,
+        E_CENTER,
+        E_RIGHT,
+        E_LEFTDOWN,
+        E_DOWN,
+        E_RIGHTDOWN
+    }
+
     class MazeArea
     {
         public Vector3 LocalArea; // 300, 0, 300
@@ -35,6 +48,8 @@ public class MyMaze : MonoBehaviour
     Vector3 m_MapSize = new Vector3(300.0f, 0.0f, 300.0f);
 
     GameObject PathPrefeb = null;
+
+    
 
     // Use this for initialization
     void Start()
@@ -313,7 +328,8 @@ public class MyMaze : MonoBehaviour
 
             for (int j = 0; j < L_PathList.Count; j++)
             {
-                for(int k = 0; k < L_PathList[j].Count; k++)
+                int PathListRotationCount = L_PathList[j].Count;
+                for (int k = 0; k < PathListRotationCount; k++)
                 {
                     Rect Path = new Rect(L_PathList[j][k].PathPlayArea.x - L_PathList[j][k].PathSize.x * 0.5f,
                    L_PathList[j][k].PathPlayArea.z - L_PathList[j][k].PathSize.z * 0.5f,
@@ -351,7 +367,75 @@ public class MyMaze : MonoBehaviour
                        MyPlayArea.y > Path.y - Path.height &&
                        MyPlayArea.y - MyPlayArea.height < Path.y)
                         {
-                            RoomAndPathDirection(MyRoom, Path);
+
+                            //현재 길이 어느쪽에 있는지 확인한다
+                            PathDirection Direction = RoomAndPathDirection(MyRoom, Path);
+
+                            if (Direction == PathDirection.E_LEFTUP)
+                            {
+
+                                //길의 오른쪽 끝과
+                                //Width는 +가 나올 경우 패스가 마이룸 안쪽에 속함, -는 이만큼 떨어져있슴
+                                //height는 +가 나올 경우 MyRoom.y가 나보다 위에있는 경우 안쪽에 속함, -는 아래쪽에 떨어져있슴
+                                float CollectWidth = Path.xMax - MyRoom.x;
+                                float CollectHeight = -((Path.y - Path.height) - MyRoom.y);
+
+                                int sdf = 123;
+
+                                if (CollectWidth > 0 && CollectWidth >= 5)
+                                {
+                                    PathArea NewCollectPath = new PathArea();
+                                    NewCollectPath.PathSize = new Vector3(5.0f, 0, Mathf.Abs(CollectHeight));
+                                    NewCollectPath.PathPlayArea = new Vector3(Path.xMax - (NewCollectPath.PathSize.x * 0.5f), 0,
+                                        ((Path.y - Path.height) + CollectHeight * 0.5f));
+
+                                    L_PathList[j].Add(NewCollectPath);
+                                }
+                                else if (CollectWidth > 0 && CollectWidth < 5)
+                                {
+                                    //수정이 필요함
+                                    L_PathList[j][k].PathPlayArea = new Vector3(); 
+
+                                    PathArea NewCollectPath = new PathArea();
+                                    NewCollectPath.PathSize = new Vector3(5.0f, 0, Mathf.Abs(CollectHeight));
+                                    NewCollectPath.PathPlayArea = new Vector3(Path.xMax - (NewCollectPath.PathSize.x * 0.5f), 0,
+                                        ((Path.y - Path.height) + CollectHeight * 0.5f));
+
+                                    L_PathList[j].Add(NewCollectPath);
+                                }
+                            }
+                            else if (Direction == PathDirection.E_UP)
+                            {
+
+                            }
+                            else if (Direction == PathDirection.E_RIGHTUP)
+                            {
+
+                            }
+                            else if (Direction == PathDirection.E_LEFT)
+                            {
+
+                            }
+                            else if (Direction == PathDirection.E_CENTER)
+                            {
+
+                            }
+                            else if (Direction == PathDirection.E_RIGHT)
+                            {
+
+                            }
+                            else if (Direction == PathDirection.E_LEFTDOWN)
+                            {
+
+                            }
+                            else if (Direction == PathDirection.E_DOWN)
+                            {
+
+                            }
+                            else if (Direction == PathDirection.E_RIGHTDOWN)
+                            {
+
+                            }
                         }
                     }
 
@@ -468,15 +552,80 @@ public class MyMaze : MonoBehaviour
     }
 
 
-    Vector4 RoomAndPathDirection(Rect Room, Rect Path)
+    PathDirection RoomAndPathDirection(Rect Room, Rect Path)
     {
-        float DistanceLeft = Room.x - Path.x;
-        float DistanceRight = Room.xMax - Path.xMax;
-        float DistanceTop = -(Room.y - Path.y);
-        float DistanceBottom = -((Room.y - Room.height) - (Path.y - Path.height));
+        PathDirection E_Direction = PathDirection.E_CENTER;
 
-        Vector4 TempVector = new Vector4(DistanceLeft, DistanceRight, DistanceTop, DistanceBottom);
+        float RoomCenterX = Room.x + (Room.width * 0.5f);
+        float RoomCenterY = Room.y - (Room.height * 0.5f);
 
-        return TempVector;
+        float PathCenterX = Path.x + (Path.width * 0.5f);
+        float PathCenterY = Path.y - (Path.height * 0.5f);
+
+        //Path위치를 찾자.
+        if (RoomCenterX < PathCenterX)
+        {
+            //패스가 내 오른쪽
+            E_Direction = PathDirection.E_RIGHT;
+        }
+        else if(RoomCenterX > PathCenterX) //룸이 오른쪽
+        {
+            //패스가 내 왼쪽
+            E_Direction = PathDirection.E_LEFT;
+        }
+        else if(RoomCenterX == PathCenterX)
+        {
+            E_Direction = PathDirection.E_CENTER;
+        }
+
+        //패스가 위 아래 있나?
+        if(E_Direction == PathDirection.E_LEFT)
+        {
+            //패스가 위에 있는가?
+            if (RoomCenterY > PathCenterY)
+            {
+                E_Direction = PathDirection.E_LEFTDOWN;
+            }
+            else if (RoomCenterY < PathCenterY) //룸이 오른쪽
+            {
+                E_Direction = PathDirection.E_LEFTUP;
+            }
+            else if(RoomCenterY == PathCenterY)
+            {
+                E_Direction = PathDirection.E_LEFT;
+            }
+        }
+        else if(E_Direction == PathDirection.E_RIGHT)
+        {
+            if (RoomCenterY > PathCenterY)
+            {
+                E_Direction = PathDirection.E_RIGHTDOWN;
+            }
+            else if (RoomCenterY < PathCenterY) //룸이 오른쪽
+            {
+                E_Direction = PathDirection.E_RIGHTUP;
+            }
+            else if (RoomCenterY == PathCenterY)
+            {
+                E_Direction = PathDirection.E_RIGHT;
+            }
+        }
+        else if(E_Direction == PathDirection.E_CENTER)
+        {
+            if (RoomCenterY > PathCenterY)
+            {
+                E_Direction = PathDirection.E_DOWN;
+            }
+            else if (RoomCenterY < PathCenterY) //룸이 오른쪽
+            {
+                E_Direction = PathDirection.E_UP;
+            }
+            else if (RoomCenterY == PathCenterY)
+            {
+                E_Direction = PathDirection.E_CENTER;
+            }
+        }
+
+        return E_Direction;
     }
 }
