@@ -356,8 +356,8 @@ public class MyMaze : MonoBehaviour
                     }
                     else
                     {
-                        Rect MyPlayArea = new Rect(L_Area[i].PlayArea.x - L_Area[i].PlayArea.x * 0.5f,
-                        L_Area[i].PlayArea.z - L_Area[i].PlayArea.z * 0.5f,
+                        Rect MyPlayArea = new Rect(L_Area[i].PlayArea.x,
+                        L_Area[i].PlayArea.z,
                         L_Area[i].LocalArea.x,
                         L_Area[i].LocalArea.z);
 
@@ -382,7 +382,7 @@ public class MyMaze : MonoBehaviour
 
                                 int sdf = 123;
 
-                                if (CollectWidth > 0 && CollectWidth >= 5)
+                                if (CollectWidth >= 0 && CollectWidth >= 5)
                                 {
                                     PathArea NewCollectPath = new PathArea();
                                     NewCollectPath.PathSize = new Vector3(5.0f, 0, Mathf.Abs(CollectHeight));
@@ -391,14 +391,14 @@ public class MyMaze : MonoBehaviour
 
                                     L_PathList[j].Add(NewCollectPath);
                                 }
-                                else if (CollectWidth > 0 && CollectWidth < 5)
+                                else if (CollectWidth >= 0 && CollectWidth < 5)
                                 {
                                     //수정이 필요함
                                     L_PathList[j][k].PathPlayArea = new Vector3(); 
 
                                     PathArea NewCollectPath = new PathArea();
                                     NewCollectPath.PathSize = new Vector3(5.0f, 0, Mathf.Abs(CollectHeight));
-                                    NewCollectPath.PathPlayArea = new Vector3(Path.xMax - (NewCollectPath.PathSize.x * 0.5f), 0,
+                                    NewCollectPath.PathPlayArea = new Vector3(MyRoom.x + (NewCollectPath.PathSize.x * 0.5f), 0,
                                         ((Path.y - Path.height) + CollectHeight * 0.5f));
 
                                     L_PathList[j].Add(NewCollectPath);
@@ -508,12 +508,14 @@ public class MyMaze : MonoBehaviour
         //맵 길
         for (int i = 0; i < L_PathList.Count; i++)
         {
-            for(int j = 0; j < L_PathList[j].Count; j++)
+            for(int j = 0; j < L_PathList[i].Count; j++)
             {
                 GameObject PathScaleChange = PathPrefeb;
 
                 PathScaleChange.transform.localScale = new Vector3(L_PathList[i][j].PathSize.x * 0.2f, L_PathList[i][j].PathSize.z * 0.2f, 1);
                 Instantiate(PathScaleChange, L_PathList[i][j].PathPlayArea, PathScaleChange.transform.rotation);
+
+                int sdf = 123;
             }
         }
     }
