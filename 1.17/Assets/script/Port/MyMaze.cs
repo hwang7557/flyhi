@@ -371,7 +371,7 @@ public class MyMaze : MonoBehaviour
                             //현재 길이 어느쪽에 있는지 확인한다
                             PathDirection Direction = RoomAndPathDirection(MyRoom, Path);
 
-                            if (Direction == PathDirection.E_LEFTUP)
+                            if (Direction == PathDirection.E_LEFTUP || Direction == PathDirection.E_UP)
                             {
                                 //길의 오른쪽 끝과
                                 //Width는 +가 나올 경우 패스가 마이룸 안쪽에 속함, -는 이만큼 떨어져있슴
@@ -416,7 +416,7 @@ public class MyMaze : MonoBehaviour
                                     {
                                         PathArea NewCollectPath = new PathArea();
                                         NewCollectPath.PathSize = new Vector3(Mathf.Abs(CollectWidth), 0, 5.0f); //
-                                        NewCollectPath.PathPlayArea = new Vector3(Path.xMax + (CollectWidth * 0.5f), 0,
+                                        NewCollectPath.PathPlayArea = new Vector3(Path.xMax - (CollectWidth * 0.5f), 0,
                                             MyRoom.y - NewCollectPath.PathSize.z * 0.5f);
 
                                         L_PathList[j].Add(NewCollectPath);
@@ -425,7 +425,7 @@ public class MyMaze : MonoBehaviour
                                     {
                                         PathArea NewCollectPath = new PathArea();
                                         NewCollectPath.PathSize = new Vector3(Mathf.Abs(CollectWidth), 0, 5.0f); //
-                                        NewCollectPath.PathPlayArea = new Vector3(Path.xMax + (CollectWidth * 0.5f), 0,
+                                        NewCollectPath.PathPlayArea = new Vector3(Path.xMax - (CollectWidth * 0.5f), 0,
                                             (Path.y - Path.height) + NewCollectPath.PathSize.z * 0.5f);
 
                                         L_PathList[j].Add(NewCollectPath);
@@ -435,7 +435,7 @@ public class MyMaze : MonoBehaviour
                                 {
                                     PathArea NewCollectPath = new PathArea();
                                     NewCollectPath.PathSize = new Vector3(Mathf.Abs(CollectWidth), 0, 5.0f); //
-                                    NewCollectPath.PathPlayArea = new Vector3(Path.xMax + (CollectWidth * 0.5f), 0,
+                                    NewCollectPath.PathPlayArea = new Vector3(Path.xMax - (CollectWidth * 0.5f), 0,
                                         (MyRoom.y - MyRoom.height) + NewCollectPath.PathSize.z * 0.5f);
 
                                     L_PathList[j].Add(NewCollectPath);
@@ -446,31 +446,165 @@ public class MyMaze : MonoBehaviour
                                     {
                                         PathArea NewPathHeight = new PathArea();
                                         NewPathHeight.PathSize = new Vector3(5.0f, 0, Mathf.Abs(CollectHeight));
-                                        NewPathHeight.PathPlayArea = new Vector3(Path.xMax - (NewPathHeight.PathSize.x * 0.5f), 0,
+                                        NewPathHeight.PathPlayArea = new Vector3(Path.xMax + (NewPathHeight.PathSize.x * 0.5f), 0,
                                             ((Path.y - Path.height) + CollectHeight * 0.5f));
 
                                         L_PathList[j].Add(NewPathHeight);
 
-                                        Rect SecondPath = new Rect(L_PathList[j][L_PathList[j].Count - 1].PathPlayArea.x - (L_PathList[j][L_PathList[j].Count - 1].PathSize.x * 0.5f),
-                                            );
+                                        Rect SecondPath = new Rect(NewPathHeight.PathPlayArea.x - NewPathHeight.PathSize.x * 0.5f,
+                                            NewPathHeight.PathPlayArea.z + NewPathHeight.PathSize.y * 0.5f,
+                                            NewPathHeight.PathSize.x,
+                                            NewPathHeight.PathSize.z);
 
                                         PathArea NewPathWidth = new PathArea();
                                         NewPathWidth.PathSize = new Vector3(Mathf.Abs(CollectWidth), 0, 5.0f); //
-                                        NewPathWidth.PathPlayArea = new Vector3(Path.xMax + (CollectWidth * 0.5f), 0,
-                                            (MyRoom.y - MyRoom.height) + NewPathWidth.PathSize.z * 0.5f);
+                                        NewPathWidth.PathPlayArea = new Vector3(SecondPath.xMax - (CollectWidth * 0.5f), 0,
+                                            (SecondPath.y - SecondPath.height) - NewPathWidth.PathSize.z * 0.5f);
 
                                         L_PathList[j].Add(NewPathWidth);
                                     }
                                     else
                                     {
+                                        //가로 후 세로
+                                        PathArea NewPathWidth = new PathArea();
+                                        NewPathWidth.PathSize = new Vector3(Mathf.Abs(CollectWidth) + 5.0f, 0, 5.0f); //
+                                        NewPathWidth.PathPlayArea = new Vector3(Path.xMax - (CollectWidth * 0.5f), 0,
+                                            (Path.y - Path.height) + NewPathWidth.PathSize.z * 0.5f);
 
+                                        L_PathList[j].Add(NewPathWidth);
+
+                                        Rect SecondPath = new Rect(NewPathWidth.PathPlayArea.x - NewPathWidth.PathSize.x * 0.5f,
+                                            NewPathWidth.PathPlayArea.z + NewPathWidth.PathSize.y * 0.5f,
+                                            NewPathWidth.PathSize.x,
+                                            NewPathWidth.PathSize.z);
+
+                                        
+                                        PathArea NewPathHeight = new PathArea();
+                                        NewPathHeight.PathSize = new Vector3(5.0f, 0, Mathf.Abs(CollectHeight));
+                                        NewPathHeight.PathPlayArea = new Vector3(SecondPath.xMax + (NewPathHeight.PathSize.x * 0.5f), 0,
+                                            ((SecondPath.y - SecondPath.height) + CollectHeight * 0.5f));
+
+                                        L_PathList[j].Add(NewPathHeight);
                                     }
                                 }
                                 
                             }
-                            else if (Direction == PathDirection.E_UP)
+                            else if (Direction == PathDirection.E_RIGHTUP)
                             {
+                                //길의 오른쪽 끝과
+                                //Width는 +가 나올 경우 패스가 마이룸 안쪽에 속함, -는 이만큼 떨어져있슴
+                                //height는 +가 나올 경우 MyRoom.y가 나보다 위에있는 경우 안쪽에 속함, -는 아래쪽에 떨어져있슴
+                                float CollectWidth = Path.xMax - MyRoom.x;
+                                float CollectHeight = -((Path.y - Path.height) - MyRoom.y);
 
+                                if (CollectWidth >= 0 && CollectWidth >= 5)
+                                {
+                                    //5보다 클 때는 조건을 추가적으로 작성해야 함.
+                                    if (Path.xMax > MyRoom.xMax)
+                                    {
+                                        PathArea NewCollectPath = new PathArea();
+                                        NewCollectPath.PathSize = new Vector3(5.0f, 0, Mathf.Abs(CollectHeight)); //
+                                        NewCollectPath.PathPlayArea = new Vector3(MyRoom.x + (NewCollectPath.PathSize.x * 0.5f), 0,
+                                            ((Path.y - Path.height) + CollectHeight * 0.5f));
+
+                                        L_PathList[j].Add(NewCollectPath);
+                                    }
+                                    else if (Path.xMax <= MyRoom.xMax)
+                                    {
+                                        PathArea NewCollectPath = new PathArea();
+                                        NewCollectPath.PathSize = new Vector3(5.0f, 0, Mathf.Abs(CollectHeight));
+                                        NewCollectPath.PathPlayArea = new Vector3(Path.xMax - (NewCollectPath.PathSize.x * 0.5f), 0,
+                                            ((Path.y - Path.height) + CollectHeight * 0.5f));
+
+                                        L_PathList[j].Add(NewCollectPath);
+                                    }
+                                }
+                                else if (CollectWidth >= 0 && CollectWidth < 5)
+                                {
+                                    PathArea NewCollectPath = new PathArea();
+                                    NewCollectPath.PathSize = new Vector3(5.0f, 0, Mathf.Abs(CollectHeight));
+                                    NewCollectPath.PathPlayArea = new Vector3(MyRoom.x + (NewCollectPath.PathSize.x * 0.5f), 0,
+                                        ((Path.y - Path.height) + CollectHeight * 0.5f));
+
+                                    L_PathList[j].Add(NewCollectPath);
+                                }
+                                else if (CollectHeight >= 0 && CollectHeight >= 5)
+                                {
+                                    if (Path.y - Path.height < MyRoom.y - MyRoom.height)
+                                    {
+                                        PathArea NewCollectPath = new PathArea();
+                                        NewCollectPath.PathSize = new Vector3(Mathf.Abs(CollectWidth), 0, 5.0f); //
+                                        NewCollectPath.PathPlayArea = new Vector3(Path.xMax - (CollectWidth * 0.5f), 0,
+                                            MyRoom.y - NewCollectPath.PathSize.z * 0.5f);
+
+                                        L_PathList[j].Add(NewCollectPath);
+                                    }
+                                    else if (Path.y - Path.height >= MyRoom.y - MyRoom.height)
+                                    {
+                                        PathArea NewCollectPath = new PathArea();
+                                        NewCollectPath.PathSize = new Vector3(Mathf.Abs(CollectWidth), 0, 5.0f); //
+                                        NewCollectPath.PathPlayArea = new Vector3(Path.xMax - (CollectWidth * 0.5f), 0,
+                                            (Path.y - Path.height) + NewCollectPath.PathSize.z * 0.5f);
+
+                                        L_PathList[j].Add(NewCollectPath);
+                                    }
+                                }
+                                else if (CollectHeight >= 0 && CollectHeight < 5)
+                                {
+                                    PathArea NewCollectPath = new PathArea();
+                                    NewCollectPath.PathSize = new Vector3(Mathf.Abs(CollectWidth), 0, 5.0f); //
+                                    NewCollectPath.PathPlayArea = new Vector3(Path.xMax - (CollectWidth * 0.5f), 0,
+                                        (MyRoom.y - MyRoom.height) + NewCollectPath.PathSize.z * 0.5f);
+
+                                    L_PathList[j].Add(NewCollectPath);
+                                }
+                                else if (CollectWidth < 0 && CollectHeight < 0)
+                                {
+                                    if (Path.width > Path.height)
+                                    {
+                                        PathArea NewPathHeight = new PathArea();
+                                        NewPathHeight.PathSize = new Vector3(5.0f, 0, Mathf.Abs(CollectHeight));
+                                        NewPathHeight.PathPlayArea = new Vector3(Path.xMax + (NewPathHeight.PathSize.x * 0.5f), 0,
+                                            ((Path.y - Path.height) + CollectHeight * 0.5f));
+
+                                        L_PathList[j].Add(NewPathHeight);
+
+                                        Rect SecondPath = new Rect(NewPathHeight.PathPlayArea.x - NewPathHeight.PathSize.x * 0.5f,
+                                            NewPathHeight.PathPlayArea.z + NewPathHeight.PathSize.y * 0.5f,
+                                            NewPathHeight.PathSize.x,
+                                            NewPathHeight.PathSize.z);
+
+                                        PathArea NewPathWidth = new PathArea();
+                                        NewPathWidth.PathSize = new Vector3(Mathf.Abs(CollectWidth), 0, 5.0f); //
+                                        NewPathWidth.PathPlayArea = new Vector3(SecondPath.xMax - (CollectWidth * 0.5f), 0,
+                                            (SecondPath.y - SecondPath.height) - NewPathWidth.PathSize.z * 0.5f);
+
+                                        L_PathList[j].Add(NewPathWidth);
+                                    }
+                                    else
+                                    {
+                                        //가로 후 세로
+                                        PathArea NewPathWidth = new PathArea();
+                                        NewPathWidth.PathSize = new Vector3(Mathf.Abs(CollectWidth) + 5.0f, 0, 5.0f); //
+                                        NewPathWidth.PathPlayArea = new Vector3(Path.xMax - (CollectWidth * 0.5f), 0,
+                                            (Path.y - Path.height) + NewPathWidth.PathSize.z * 0.5f);
+
+                                        L_PathList[j].Add(NewPathWidth);
+
+                                        Rect SecondPath = new Rect(NewPathWidth.PathPlayArea.x - NewPathWidth.PathSize.x * 0.5f,
+                                            NewPathWidth.PathPlayArea.z + NewPathWidth.PathSize.y * 0.5f,
+                                            NewPathWidth.PathSize.x,
+                                            NewPathWidth.PathSize.z);
+
+
+                                        PathArea NewPathHeight = new PathArea();
+                                        NewPathHeight.PathSize = new Vector3(5.0f, 0, Mathf.Abs(CollectHeight));
+                                        NewPathHeight.PathPlayArea = new Vector3(SecondPath.xMax + (NewPathHeight.PathSize.x * 0.5f), 0,
+                                            ((SecondPath.y - SecondPath.height) + CollectHeight * 0.5f));
+
+                                        L_PathList[j].Add(NewPathHeight);
+                                    }
+                                }
                             }
                             else if (Direction == PathDirection.E_RIGHTUP)
                             {
