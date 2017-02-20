@@ -49,7 +49,12 @@ public class MyMaze : MonoBehaviour
 
     GameObject PathPrefeb = null;
 
-    
+    List<GameObject> Instantiate_AreaControl = new List<GameObject>();
+    Dictionary<int, List<GameObject>> Instantiate_PathControl = new Dictionary<int, List<GameObject>>();
+
+
+
+
 
     // Use this for initialization
     void Start()
@@ -1138,20 +1143,27 @@ public class MyMaze : MonoBehaviour
             GameObject PathScaleChange = PathPrefeb;
 
             PathScaleChange.transform.localScale = new Vector3(L_Area[i].RoomSize.x * 0.2f, L_Area[i].RoomSize.z * 0.2f, 1);
-            Instantiate(PathScaleChange, L_Area[i].RoomPosition, PathScaleChange.transform.rotation);
+            Instantiate_AreaControl.Add(Instantiate(PathScaleChange, L_Area[i].RoomPosition, PathScaleChange.transform.rotation));
+
+            Instantiate_AreaControl[i].GetComponent<RoomDeco>().floorTilingScaleChange(L_Area[i].RoomSize.x, L_Area[i].RoomSize.z);
+
         }
 
         //맵 길
         for (int i = 0; i < L_PathList.Count; i++)
         {
-            for(int j = 0; j < L_PathList[i].Count; j++)
+            Instantiate_PathControl[i] = new List<GameObject>();
+            for (int j = 0; j < L_PathList[i].Count; j++)
             {
-                GameObject PathScaleChange = PathPrefeb;
+                GameObject PathScaleChange = Resources.Load("Prefebs/P_Path") as GameObject;
 
+                //길 사이즈가 5인 경우 사이즈를 늘려줘라 집에서 해야할내용
                 PathScaleChange.transform.localScale = new Vector3(L_PathList[i][j].PathSize.x * 0.2f, L_PathList[i][j].PathSize.z * 0.2f, 1);
-                Instantiate(PathScaleChange, L_PathList[i][j].PathPlayArea, PathScaleChange.transform.rotation);
+                GameObject Temp = Instantiate(PathScaleChange, L_PathList[i][j].PathPlayArea, PathScaleChange.transform.rotation);
 
-                int sdf = 123;
+                Instantiate_PathControl[i].Add(Temp);
+
+                //Instantiate_PathControl[i][j].GetComponent<PathDeco>().PathTilingScaleChange();
             }
         }
     }
