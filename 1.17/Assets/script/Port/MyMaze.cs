@@ -1158,12 +1158,26 @@ public class MyMaze : MonoBehaviour
                 GameObject PathScaleChange = Resources.Load("Prefebs/P_Path") as GameObject;
 
                 //길 사이즈가 5인 경우 사이즈를 늘려줘라 집에서 해야할내용
-                PathScaleChange.transform.localScale = new Vector3(L_PathList[i][j].PathSize.x * 0.2f, L_PathList[i][j].PathSize.z * 0.2f, 1);
-                GameObject Temp = Instantiate(PathScaleChange, L_PathList[i][j].PathPlayArea, PathScaleChange.transform.rotation);
+                GameObject Temp;
 
-                Instantiate_PathControl[i].Add(Temp);
+                if (L_PathList[i][j].PathSize.x == 5.0f)
+                {
+                    PathScaleChange.transform.localScale = new Vector3(L_PathList[i][j].PathSize.x * 0.25f, L_PathList[i][j].PathSize.z * 0.2f, 1);
+                    Temp = Instantiate(PathScaleChange, L_PathList[i][j].PathPlayArea, PathScaleChange.transform.rotation);
+                    Instantiate_PathControl[i].Add(Temp);
+                    Instantiate_PathControl[i][j].GetComponent<PathDeco>().PathTilingScaleChange(L_PathList[i][j].PathSize.x * 0.25f, L_PathList[i][j].PathSize.z * 0.2f);
+                    Instantiate_PathControl[i][j].GetComponent<PathDeco>().WallMake(0.25f, 0.2f);
+                }
+                else
+                {
+                    PathScaleChange.transform.localScale = new Vector3(L_PathList[i][j].PathSize.x * 0.2f, L_PathList[i][j].PathSize.z * 0.25f, 1);
+                    Temp = Instantiate(PathScaleChange, L_PathList[i][j].PathPlayArea, PathScaleChange.transform.rotation);
+                    Instantiate_PathControl[i].Add(Temp);
+                    Instantiate_PathControl[i][j].GetComponent<PathDeco>().PathTilingScaleChange(0.2f, 0.25f);
+                    Instantiate_PathControl[i][j].GetComponent<PathDeco>().WallMake(0.2f, 0.25f);
+                }
 
-                //Instantiate_PathControl[i][j].GetComponent<PathDeco>().PathTilingScaleChange();
+                
             }
         }
     }
