@@ -1166,15 +1166,15 @@ public class MyMaze : MonoBehaviour
                     Temp = Instantiate(PathScaleChange, L_PathList[i][j].PathPlayArea, PathScaleChange.transform.rotation);
                     Instantiate_PathControl[i].Add(Temp);
                     Instantiate_PathControl[i][j].GetComponent<PathDeco>().PathTilingScaleChange(L_PathList[i][j].PathSize.x * 0.25f, L_PathList[i][j].PathSize.z * 0.2f);
-                    Instantiate_PathControl[i][j].GetComponent<PathDeco>().WallMake(0.25f, 0.2f);
+                    Instantiate_PathControl[i][j].GetComponent<PathDeco>().WallMake(L_PathList[i][j].PathSize.x, L_PathList[i][j].PathSize.z);
                 }
                 else
                 {
                     PathScaleChange.transform.localScale = new Vector3(L_PathList[i][j].PathSize.x * 0.2f, L_PathList[i][j].PathSize.z * 0.25f, 1);
                     Temp = Instantiate(PathScaleChange, L_PathList[i][j].PathPlayArea, PathScaleChange.transform.rotation);
                     Instantiate_PathControl[i].Add(Temp);
-                    Instantiate_PathControl[i][j].GetComponent<PathDeco>().PathTilingScaleChange(0.2f, 0.25f);
-                    Instantiate_PathControl[i][j].GetComponent<PathDeco>().WallMake(0.2f, 0.25f);
+                    Instantiate_PathControl[i][j].GetComponent<PathDeco>().PathTilingScaleChange(L_PathList[i][j].PathSize.x * 0.2f, L_PathList[i][j].PathSize.z * 0.25f);
+                    Instantiate_PathControl[i][j].GetComponent<PathDeco>().WallMake(L_PathList[i][j].PathSize.x, L_PathList[i][j].PathSize.z);
                 }
 
                 

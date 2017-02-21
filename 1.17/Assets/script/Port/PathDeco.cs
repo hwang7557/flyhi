@@ -24,23 +24,44 @@ public class PathDeco : MonoBehaviour
         gameObject.GetComponent<Renderer>().material = ChangeMaterial;
     }
 
-    public void WallMake(float TileSIzeX, float TileSizeY)
+    public void WallMake(float sizeX, float sizeY)
     {
-        GameObject WallPreFabs = Resources.Load("Prefebs/Wall01_c") as GameObject;
+        GameObject g = Resources.Load("Prefebs/Wall01_c") as GameObject;
+        GameObject d = Instantiate(g, gameObject.transform.localPosition, gameObject.transform.localRotation);
+        d.transform.localScale = new Vector3(0.2f, 0.2f, 1);
+        d.transform.parent = gameObject.transform;
+        //d.transform.localScale = new Vector3(0.001616f, 0.16f, 1);
 
-        for (float i = 0; i < gameObject.transform.localScale.x; i += 0.1f)
+
+        //d.transform.localPosition = new Vector3(0, 0, 0);
+
+        //if(gameObject.transform.localScale.x != 0 && gameObject.transform.localScale.y != 0)
+        //{
+        //    d.transform.localScale = new Vector3(1.0f / (gameObject.transform.localScale.x * sizeX), 1.0f / (gameObject.transform.localScale.y * sizeY), 1);
+        //}
+        //else
+        //{
+        //    if(gameObject.transform.localScale.x == 0)
+        //    {
+        //        d.transform.localScale = new Vector3(0.0f, 1.0f / (gameObject.transform.localScale.y * sizeY), 1);
+        //    }
+        //    else
+        //    {
+        //        d.transform.localScale = new Vector3(1.0f / (gameObject.transform.localScale.x * sizeX), 0.0f, 1);
+        //    }
+        //}
+
+
+        if (gameObject.transform.localScale.x > gameObject.transform.localScale.y)
         {
-            for (float j = 0; j < gameObject.transform.localScale.y; j += 0.1f)
-            {
-                if(i == 0 || j == 0 || i == gameObject.transform.localScale.x - 0.1f || j == gameObject.transform.localScale.z)
-                {
-                    GameObject WallMove = Instantiate(WallPreFabs, gameObject.transform);
-                    WallMove.transform.position = new Vector3(-(gameObject.transform.localScale.x * 0.5f) + i, 0,
-                        -(gameObject.transform.localScale.z * 0.5f) + j);
-                    WallMove.transform.localScale = new Vector3(1.0f * TileSIzeX / gameObject.transform.localScale.x, 1.0f * TileSizeY / gameObject.transform.localScale.y, 1);
-                    WallMove.transform.localRotation = Quaternion.identity;
-                }
-            }
+            d.transform.Rotate(0, 0, 0);
         }
+        else
+        {
+            d.transform.Rotate(0, 0, 90.0f);
+        }
+
+        int dfs = 3;
+
     }
 }
