@@ -27,10 +27,21 @@ public class PathDeco : MonoBehaviour
     public void WallMake(float sizeX, float sizeY)
     {
         GameObject g = Resources.Load("Prefebs/Wall01_c") as GameObject;
-        GameObject d = Instantiate(g, gameObject.transform.localPosition, gameObject.transform.localRotation);
-        d.transform.localScale = new Vector3(0.2f, 0.2f, 1);
-        d.transform.parent = gameObject.transform;
-        //d.transform.localScale = new Vector3(0.001616f, 0.16f, 1);
+        
+        
+
+
+        List<GameObject> cc = new List<GameObject>();
+
+        for(int i = 1; i < sizeX + 1; i++)
+        {            
+              GameObject d = Instantiate(g, gameObject.transform.localPosition, gameObject.transform.localRotation);
+              d.transform.localScale = new Vector3(0.2f, 0.2f, 0.3f);
+              d.transform.parent = gameObject.transform;
+              d.transform.localPosition = new Vector3(((sizeX * 0.5f / gameObject.transform.localScale.x) / (sizeX * 0.5f) * i) 
+                  - (sizeX * 0.5f / gameObject.transform.localScale.x), 0, 0);
+              
+        }
 
 
         //d.transform.localPosition = new Vector3(0, 0, 0);
@@ -52,16 +63,16 @@ public class PathDeco : MonoBehaviour
         //}
 
 
-        if (gameObject.transform.localScale.x > gameObject.transform.localScale.y)
-        {
-            d.transform.Rotate(0, 0, 0);
-        }
-        else
-        {
-            d.transform.Rotate(0, 0, 90.0f);
-        }
+        //if (gameObject.transform.localScale.x > gameObject.transform.localScale.y)
+        //{
+        //    d.transform.Rotate(0, 0, 0);
+        //}
+        //else
+        //{
+        //    d.transform.Rotate(0, 0, 90.0f);
+        //}
 
-        int dfs = 3;
+        //int dfs = 3;
 
     }
 }

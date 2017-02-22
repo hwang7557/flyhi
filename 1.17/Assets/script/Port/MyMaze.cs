@@ -1166,7 +1166,7 @@ public class MyMaze : MonoBehaviour
                     Temp = Instantiate(PathScaleChange, L_PathList[i][j].PathPlayArea, PathScaleChange.transform.rotation);
                     Instantiate_PathControl[i].Add(Temp);
                     Instantiate_PathControl[i][j].GetComponent<PathDeco>().PathTilingScaleChange(L_PathList[i][j].PathSize.x * 0.25f, L_PathList[i][j].PathSize.z * 0.2f);
-                    Instantiate_PathControl[i][j].GetComponent<PathDeco>().WallMake(L_PathList[i][j].PathSize.x, L_PathList[i][j].PathSize.z);
+                    //Instantiate_PathControl[i][j].GetComponent<PathDeco>().WallMake(L_PathList[i][j].PathSize.x, L_PathList[i][j].PathSize.z);
                 }
                 else
                 {
