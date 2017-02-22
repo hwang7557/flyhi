@@ -21,4 +21,49 @@ public class RoomDeco : MonoBehaviour {
         ChangeMaterial.mainTextureScale = new Vector2(TileSIzeX * 0.2f, TileSizeY * 0.2f);
         gameObject.GetComponent<Renderer>().material = ChangeMaterial;
     }
+
+    public void WallMake(float sizeX, float sizeY)
+    {
+        GameObject g = Resources.Load("Prefebs/Wall01_a") as GameObject;
+
+        for (int i = 1; i <= sizeX; i++)
+        {
+            GameObject d = Instantiate(g, gameObject.transform.localPosition, gameObject.transform.localRotation);
+            d.transform.localScale = new Vector3(0.2f, 0.4f, 0.3f);
+            d.transform.parent = gameObject.transform;
+            d.transform.localPosition = new Vector3(((sizeX * 0.5f / gameObject.transform.localScale.x) / (sizeX * 0.5f) * i)
+                - (sizeX * 0.5f / gameObject.transform.localScale.x), -(sizeY * 0.5f / gameObject.transform.localScale.y), 0);
+
+        }
+
+        for (int i = 1; i <= sizeX; i++)
+        {
+            GameObject d = Instantiate(g, gameObject.transform.localPosition, gameObject.transform.localRotation);
+            d.transform.localScale = new Vector3(0.2f, 0.4f, 0.3f);
+            d.transform.parent = gameObject.transform;
+            d.transform.localPosition = new Vector3(((sizeX * 0.5f / gameObject.transform.localScale.x) / (sizeX * 0.5f) * i)
+                - (sizeX * 0.5f / gameObject.transform.localScale.x), (sizeY * 0.5f / gameObject.transform.localScale.y), 0);
+
+        }
+
+        for (int i = 1; i <= sizeY; i++)
+        {
+            GameObject d = Instantiate(g, gameObject.transform.localPosition, gameObject.transform.localRotation);
+            d.transform.localScale = new Vector3(0.2f, 0.4f, 0.3f);
+            d.transform.Rotate(0, 0, 90.0f);
+            d.transform.parent = gameObject.transform;
+            d.transform.localPosition = new Vector3(-(sizeX * 0.5f / gameObject.transform.localScale.x), ((sizeY * 0.5f / gameObject.transform.localScale.y) / (sizeY * 0.5f) * i)
+              - (sizeY * 0.5f / gameObject.transform.localScale.y), 0);
+        }
+
+        for (int i = 1; i <= sizeY; i++)
+        {
+            GameObject d = Instantiate(g, gameObject.transform.localPosition, gameObject.transform.localRotation);
+            d.transform.localScale = new Vector3(0.2f, 0.4f, 0.3f);
+            d.transform.Rotate(0, 0, 90.0f);
+            d.transform.parent = gameObject.transform;
+            d.transform.localPosition = new Vector3((sizeX * 0.5f / gameObject.transform.localScale.x), ((sizeY * 0.5f / gameObject.transform.localScale.y) / (sizeY * 0.5f) * i)
+              - (sizeY * 0.5f / gameObject.transform.localScale.y), 0);
+        }
+    }
 }

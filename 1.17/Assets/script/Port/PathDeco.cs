@@ -24,55 +24,106 @@ public class PathDeco : MonoBehaviour
         gameObject.GetComponent<Renderer>().material = ChangeMaterial;
     }
 
-    public void WallMake(float sizeX, float sizeY)
+    public void WallMakeX(float sizeX, float sizeY)
     {
-        GameObject g = Resources.Load("Prefebs/Wall01_c") as GameObject;
-        
-        
+        if(sizeX != 0)
+        {
+            GameObject g = Resources.Load("Prefebs/Wall01_c") as GameObject;
 
+            for (int i = 1; i <= sizeX; i++)
+            {
+                GameObject d = Instantiate(g, gameObject.transform.localPosition, gameObject.transform.localRotation);
+                d.transform.localScale = new Vector3(0.2f, 0.4f, 0.3f);
+                d.transform.parent = gameObject.transform;
+                d.transform.localPosition = new Vector3(((sizeX * 0.5f / gameObject.transform.localScale.x) / (sizeX * 0.5f) * i)
+                    - (sizeX * 0.5f / gameObject.transform.localScale.x), -(sizeY * 0.5f / gameObject.transform.localScale.y), 0);
 
-        List<GameObject> cc = new List<GameObject>();
+            }
 
-        for(int i = 1; i < sizeX + 1; i++)
-        {            
-              GameObject d = Instantiate(g, gameObject.transform.localPosition, gameObject.transform.localRotation);
-              d.transform.localScale = new Vector3(0.2f, 0.2f, 0.3f);
-              d.transform.parent = gameObject.transform;
-              d.transform.localPosition = new Vector3(((sizeX * 0.5f / gameObject.transform.localScale.x) / (sizeX * 0.5f) * i) 
-                  - (sizeX * 0.5f / gameObject.transform.localScale.x), 0, 0);
-              
+            for (int i = 1; i <= sizeX; i++)
+            {
+                GameObject d = Instantiate(g, gameObject.transform.localPosition, gameObject.transform.localRotation);
+                d.transform.localScale = new Vector3(0.2f, 0.4f, 0.3f);
+                d.transform.parent = gameObject.transform;
+                d.transform.localPosition = new Vector3(((sizeX * 0.5f / gameObject.transform.localScale.x) / (sizeX * 0.5f) * i)
+                    - (sizeX * 0.5f / gameObject.transform.localScale.x), (sizeY * 0.5f / gameObject.transform.localScale.y), 0);
+
+            }
+
+            for (int i = 1; i <= sizeY; i++)
+            {
+                GameObject d = Instantiate(g, gameObject.transform.localPosition, gameObject.transform.localRotation);
+                d.transform.localScale = new Vector3(0.2f, 0.4f, 0.3f);
+                d.transform.Rotate(0, 0, 90.0f);
+                d.transform.parent = gameObject.transform;
+                d.transform.localPosition = new Vector3(-(sizeX * 0.5f / gameObject.transform.localScale.x), ((sizeY * 0.5f / gameObject.transform.localScale.y) / (sizeY * 0.5f) * i)
+                  - (sizeY * 0.5f / gameObject.transform.localScale.y), 0);
+            }
+
+            for (int i = 1; i <= sizeY; i++)
+            {
+                GameObject d = Instantiate(g, gameObject.transform.localPosition, gameObject.transform.localRotation);
+                d.transform.localScale = new Vector3(0.2f, 0.4f, 0.3f);
+                d.transform.Rotate(0, 0, 90.0f);
+                d.transform.parent = gameObject.transform;
+                d.transform.localPosition = new Vector3((sizeX * 0.5f / gameObject.transform.localScale.x), ((sizeY * 0.5f / gameObject.transform.localScale.y) / (sizeY * 0.5f) * i)
+                  - (sizeY * 0.5f / gameObject.transform.localScale.y), 0);
+            }
         }
+    }
 
+    public void WallMakeY(float sizeX, float sizeY)
+    {
+        if (sizeY != 0)
+        {
+            GameObject g = Resources.Load("Prefebs/Wall01_c") as GameObject;
 
-        //d.transform.localPosition = new Vector3(0, 0, 0);
+            for (int i = 1; i <= sizeX; i++)
+            {
+                GameObject d = Instantiate(g, gameObject.transform.localPosition, gameObject.transform.localRotation);
+                d.transform.localScale = new Vector3(0.2f, 0.4f, 0.3f);
+                d.transform.parent = gameObject.transform;
+                d.transform.localPosition = new Vector3(((sizeX * 0.5f / gameObject.transform.localScale.x) / (sizeX * 0.5f) * i)
+                    - (sizeX * 0.5f / gameObject.transform.localScale.x), -(sizeY * 0.5f / gameObject.transform.localScale.y), 0);
 
-        //if(gameObject.transform.localScale.x != 0 && gameObject.transform.localScale.y != 0)
-        //{
-        //    d.transform.localScale = new Vector3(1.0f / (gameObject.transform.localScale.x * sizeX), 1.0f / (gameObject.transform.localScale.y * sizeY), 1);
-        //}
-        //else
-        //{
-        //    if(gameObject.transform.localScale.x == 0)
-        //    {
-        //        d.transform.localScale = new Vector3(0.0f, 1.0f / (gameObject.transform.localScale.y * sizeY), 1);
-        //    }
-        //    else
-        //    {
-        //        d.transform.localScale = new Vector3(1.0f / (gameObject.transform.localScale.x * sizeX), 0.0f, 1);
-        //    }
-        //}
+            }
 
+            for (int i = 1; i <= sizeX; i++)
+            {
+                GameObject d = Instantiate(g, gameObject.transform.localPosition, gameObject.transform.localRotation);
+                d.transform.localScale = new Vector3(0.2f, 0.4f, 0.3f);
+                d.transform.parent = gameObject.transform;
+                d.transform.localPosition = new Vector3(((sizeX * 0.5f / gameObject.transform.localScale.x) / (sizeX * 0.5f) * i)
+                    - (sizeX * 0.5f / gameObject.transform.localScale.x), (sizeY * 0.5f / gameObject.transform.localScale.y), 0);
 
-        //if (gameObject.transform.localScale.x > gameObject.transform.localScale.y)
-        //{
-        //    d.transform.Rotate(0, 0, 0);
-        //}
-        //else
-        //{
-        //    d.transform.Rotate(0, 0, 90.0f);
-        //}
+            }
 
-        //int dfs = 3;
+            for (int i = 1; i <= sizeY; i++)
+            {
+                GameObject d = Instantiate(g, gameObject.transform.localPosition, gameObject.transform.localRotation);
+                d.transform.localScale = new Vector3(0.2f, 0.4f, 0.3f);
+                d.transform.Rotate(0, 0, 90.0f);
+                d.transform.parent = gameObject.transform;
+                d.transform.localPosition = new Vector3(-(sizeX * 0.5f / gameObject.transform.localScale.x), ((sizeY * 0.5f / gameObject.transform.localScale.y) / (sizeY * 0.5f) * i)
+                  - (sizeY * 0.5f / gameObject.transform.localScale.y), 0);
+            }
 
+            for (int i = 1; i <= sizeY; i++)
+            {
+                GameObject d = Instantiate(g, gameObject.transform.localPosition, gameObject.transform.localRotation);
+                d.transform.localScale = new Vector3(0.2f, 0.4f, 0.3f);
+                d.transform.Rotate(0, 0, 90.0f);
+                d.transform.parent = gameObject.transform;
+                d.transform.localPosition = new Vector3((sizeX * 0.5f / gameObject.transform.localScale.x), ((sizeY * 0.5f / gameObject.transform.localScale.y) / (sizeY * 0.5f) * i)
+                  - (sizeY * 0.5f / gameObject.transform.localScale.y), 0);
+            }
+        }
+    }
+
+    public void WallDelete(float x, float y, float Width, float Height)
+    {
+        //Object[] GG = gameObject.GetComponentsInChildren<Object>();
+
+        int dsf = 123;
     }
 }

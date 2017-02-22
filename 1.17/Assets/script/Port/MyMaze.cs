@@ -77,6 +77,7 @@ public class MyMaze : MonoBehaviour
         PathMake();
         PathOverLapCheck();
         PathInstantiate();
+        assortment();
     }
 
     // Update is called once per frame
@@ -357,7 +358,6 @@ public class MyMaze : MonoBehaviour
                         float top = Mathf.Min(MyRoom.y, Path.y);
                         float Bottom = Mathf.Max(MyRoom.y - MyRoom.height, Path.y - Path.height);
 
-                        int sdf = 123;
                     }
                     else
                     {
@@ -1146,6 +1146,7 @@ public class MyMaze : MonoBehaviour
             Instantiate_AreaControl.Add(Instantiate(PathScaleChange, L_Area[i].RoomPosition, PathScaleChange.transform.rotation));
 
             Instantiate_AreaControl[i].GetComponent<RoomDeco>().floorTilingScaleChange(L_Area[i].RoomSize.x, L_Area[i].RoomSize.z);
+            Instantiate_AreaControl[i].GetComponent<RoomDeco>().WallMake(L_Area[i].RoomSize.x, L_Area[i].RoomSize.z);
 
         }
 
@@ -1166,7 +1167,7 @@ public class MyMaze : MonoBehaviour
                     Temp = Instantiate(PathScaleChange, L_PathList[i][j].PathPlayArea, PathScaleChange.transform.rotation);
                     Instantiate_PathControl[i].Add(Temp);
                     Instantiate_PathControl[i][j].GetComponent<PathDeco>().PathTilingScaleChange(L_PathList[i][j].PathSize.x * 0.25f, L_PathList[i][j].PathSize.z * 0.2f);
-                    //Instantiate_PathControl[i][j].GetComponent<PathDeco>().WallMake(L_PathList[i][j].PathSize.x, L_PathList[i][j].PathSize.z);
+                    Instantiate_PathControl[i][j].GetComponent<PathDeco>().WallMakeY(L_PathList[i][j].PathSize.x, L_PathList[i][j].PathSize.z);
                 }
                 else
                 {
@@ -1174,10 +1175,50 @@ public class MyMaze : MonoBehaviour
                     Temp = Instantiate(PathScaleChange, L_PathList[i][j].PathPlayArea, PathScaleChange.transform.rotation);
                     Instantiate_PathControl[i].Add(Temp);
                     Instantiate_PathControl[i][j].GetComponent<PathDeco>().PathTilingScaleChange(L_PathList[i][j].PathSize.x * 0.2f, L_PathList[i][j].PathSize.z * 0.25f);
-                    Instantiate_PathControl[i][j].GetComponent<PathDeco>().WallMake(L_PathList[i][j].PathSize.x, L_PathList[i][j].PathSize.z);
+                    Instantiate_PathControl[i][j].GetComponent<PathDeco>().WallMakeX(L_PathList[i][j].PathSize.x, L_PathList[i][j].PathSize.z);
                 }
 
                 
+            }
+        }
+    }
+
+
+    void assortment()
+    {
+        for(int i =0; i < L_Area.Count; i++)
+        {
+            Rect MyRoom = new Rect(L_Area[i].RoomPosition.x - L_Area[i].RoomSize.x * 0.5f,
+                L_Area[i].RoomPosition.z + L_Area[i].RoomSize.z * 0.5f,
+                L_Area[i].RoomSize.x,
+                L_Area[i].RoomSize.z);
+
+            for (int j = 0; j < L_PathList.Count; j++)
+            {
+                for(int k = 0; k < L_PathList[j].Count; k++)
+                {
+                    Rect Path = new Rect(L_PathList[j][k].PathPlayArea.x - L_PathList[j][k].PathSize.x * 0.5f,
+                   L_PathList[j][k].PathPlayArea.z + L_PathList[j][k].PathSize.z * 0.5f,
+                   L_PathList[j][k].PathSize.x,
+                   L_PathList[j][k].PathSize.z);
+
+                    if (MyRoom.x < Path.xMax &&
+                       MyRoom.xMax > Path.x &&
+                       MyRoom.y > Path.y - Path.height &&
+                       MyRoom.y - MyRoom.height < Path.y)
+                    {
+                        //이제 충돌을 했다면 어디로 충돌했는지 확인하며,
+                        //해당 충돌이 길에서 겹치는 만큼 길을 제거해주며,
+                        //현재 [i]에 입구를 나타내는 구역을 설정해줌.
+                        float Left = MyRoom.x > Path.x ? MyRoom.x : Path.x;
+                        float Right = MyRoom.xMax < Path.xMax ? MyRoom.xMax : Path.xMax;
+                        float top = Mathf.Min(MyRoom.y, Path.y);
+                        float Bottom = Mathf.Max(MyRoom.y - MyRoom.height, Path.y - Path.height);
+
+                        Instantiate_PathControl[j][k].GetComponent<PathDeco>().WallDelete(Left, top, Right - Left, top - Bottom);
+
+                    }
+                }
             }
         }
     }
