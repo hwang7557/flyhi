@@ -122,8 +122,23 @@ public class PathDeco : MonoBehaviour
 
     public void WallDelete(float x, float y, float Width, float Height)
     {
-        //Object[] GG = gameObject.GetComponentsInChildren<Object>();
+        Transform[] GG = gameObject.GetComponentsInChildren<Transform>();
 
-        int dsf = 123;
+        for(int i =1; i < GG.Length; i++)
+        {
+            if(x <= GG[i].position.x &&
+               x + Width >= GG[i].position.x &&
+               y >= GG[i].position.z &&
+               y - Height <= GG[i].position.z)
+            {
+                //20 <= 19.6 + 0.4f;
+                if (GG[i].position.z - y > 0.5f || (y - Height) <= GG[i].position.z + 0.4f)
+                {
+
+                }
+                else
+                    Destroy(GG[i].gameObject);
+            }
+        }
     }
 }

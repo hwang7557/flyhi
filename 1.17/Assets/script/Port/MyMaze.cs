@@ -1215,7 +1215,8 @@ public class MyMaze : MonoBehaviour
                         float top = Mathf.Min(MyRoom.y, Path.y);
                         float Bottom = Mathf.Max(MyRoom.y - MyRoom.height, Path.y - Path.height);
 
-                        Instantiate_PathControl[j][k].GetComponent<PathDeco>().WallDelete(Left, top, Right - Left, top - Bottom);
+                        //Instantiate_PathControl[j][k].GetComponent<PathDeco>().WallDelete(Left, top, Right - Left, top - Bottom);
+                        Instantiate_PathControl[j][k].GetComponent<PathDeco>().WallDelete(MyRoom.x, MyRoom.y, MyRoom.width, MyRoom.height);
 
                     }
                 }
