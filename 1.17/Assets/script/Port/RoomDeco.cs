@@ -66,4 +66,20 @@ public class RoomDeco : MonoBehaviour {
               - (sizeY * 0.5f / gameObject.transform.localScale.y), 0);
         }
     }
+
+    public void WallDelete(float x, float y, float Width, float Height)
+    {
+        Transform[] GG = gameObject.GetComponentsInChildren<Transform>();
+
+        for (int i = 1; i < GG.Length; i++)
+        {
+            if (x <= GG[i].position.x &&
+               x + Width >= GG[i].position.x &&
+               y >= GG[i].position.z &&
+               y - Height <= GG[i].position.z)
+            {
+                Destroy(GG[i].gameObject);
+            }
+        }
+    }
 }

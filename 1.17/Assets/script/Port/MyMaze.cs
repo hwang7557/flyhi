@@ -1195,7 +1195,7 @@ public class MyMaze : MonoBehaviour
 
             for (int j = 0; j < L_PathList.Count; j++)
             {
-                for(int k = 0; k < L_PathList[j].Count; k++)
+                for (int k = 0; k < L_PathList[j].Count; k++)
                 {
                     Rect Path = new Rect(L_PathList[j][k].PathPlayArea.x - L_PathList[j][k].PathSize.x * 0.5f,
                    L_PathList[j][k].PathPlayArea.z + L_PathList[j][k].PathSize.z * 0.5f,
@@ -1210,19 +1210,50 @@ public class MyMaze : MonoBehaviour
                         //이제 충돌을 했다면 어디로 충돌했는지 확인하며,
                         //해당 충돌이 길에서 겹치는 만큼 길을 제거해주며,
                         //현재 [i]에 입구를 나타내는 구역을 설정해줌.
-                        float Left = MyRoom.x > Path.x ? MyRoom.x : Path.x;
-                        float Right = MyRoom.xMax < Path.xMax ? MyRoom.xMax : Path.xMax;
-                        float top = Mathf.Min(MyRoom.y, Path.y);
-                        float Bottom = Mathf.Max(MyRoom.y - MyRoom.height, Path.y - Path.height);
-
-                        //Instantiate_PathControl[j][k].GetComponent<PathDeco>().WallDelete(Left, top, Right - Left, top - Bottom);
+                        //float Left = MyRoom.x > Path.x ? MyRoom.x : Path.x;
+                        //float Right = MyRoom.xMax < Path.xMax ? MyRoom.xMax : Path.xMax;
+                        //float top = Mathf.Min(MyRoom.y, Path.y);
+                        //float Bottom = Mathf.Max(MyRoom.y - MyRoom.height, Path.y - Path.height);
                         Instantiate_PathControl[j][k].GetComponent<PathDeco>().WallDelete(MyRoom.x, MyRoom.y, MyRoom.width, MyRoom.height);
 
+
+                        if (Path.width < Path.height)
+                        {
+                            Instantiate_AreaControl[i].GetComponent<RoomDeco>().WallDelete(Path.x + 1.0f, Path.y, Path.width - 2.0f, Path.height);
+                        }
+                        else if (Path.width > Path.height)
+                        {
+                            Instantiate_AreaControl[i].GetComponent<RoomDeco>().WallDelete(Path.x, Path.y - 1.0f, Path.width, Path.height - 2.0f);
+                        }
+                    }
+                    else
+                    {
+                        Rect MyRoomSizeUp = new Rect(L_Area[i].RoomPosition.x - 1.0f - L_Area[i].RoomSize.x * 0.5f,
+                       L_Area[i].RoomPosition.z - 1.0f + L_Area[i].RoomSize.z * 0.5f,
+                       L_Area[i].RoomSize.x + 2.0f,
+                       L_Area[i].RoomSize.z + 2.0f);
+                        
+                        if (MyRoomSizeUp.x < Path.xMax &&
+                       MyRoomSizeUp.xMax > Path.x &&
+                       MyRoomSizeUp.y > Path.y - Path.height &&
+                       MyRoomSizeUp.y - MyRoomSizeUp.height < Path.y)
+                        {
+                            float Left = MyRoom.x > Path.x ? MyRoom.x : Path.x;
+                            float Right = MyRoom.xMax < Path.xMax ? MyRoom.xMax : Path.xMax;
+                            float top = Mathf.Min(MyRoom.y, Path.y);
+                            float Bottom = Mathf.Max(MyRoom.y - MyRoom.height, Path.y - Path.height);
+
+
+
+                            
+                        }
                     }
                 }
             }
         }
     }
+
+
 
     int SmallAndBigCheckUD(float a, float b)
     {

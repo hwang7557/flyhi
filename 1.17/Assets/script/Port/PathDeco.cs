@@ -126,18 +126,12 @@ public class PathDeco : MonoBehaviour
 
         for(int i =1; i < GG.Length; i++)
         {
-            if(x <= GG[i].position.x &&
-               x + Width >= GG[i].position.x &&
-               y >= GG[i].position.z &&
-               y - Height <= GG[i].position.z)
+            if (x + 0.4f <= GG[i].position.x &&
+               x + Width - 0.4f >= GG[i].position.x &&
+               y - 0.5f >= GG[i].position.z &&
+               y - Height + 0.5f <= GG[i].position.z)
             {
-                //20 <= 19.6 + 0.4f;
-                if (GG[i].position.z - y > 0.5f || (y - Height) <= GG[i].position.z + 0.4f)
-                {
-
-                }
-                else
-                    Destroy(GG[i].gameObject);
+                Destroy(GG[i].gameObject);
             }
         }
     }
