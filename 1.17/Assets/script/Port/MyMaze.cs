@@ -1229,7 +1229,7 @@ public class MyMaze : MonoBehaviour
                     else
                     {
                         Rect MyRoomSizeUp = new Rect(L_Area[i].RoomPosition.x - 1.0f - L_Area[i].RoomSize.x * 0.5f,
-                       L_Area[i].RoomPosition.z - 1.0f + L_Area[i].RoomSize.z * 0.5f,
+                       L_Area[i].RoomPosition.z + 1.0f + L_Area[i].RoomSize.z * 0.5f,
                        L_Area[i].RoomSize.x + 2.0f,
                        L_Area[i].RoomSize.z + 2.0f);
                         
@@ -1238,14 +1238,26 @@ public class MyMaze : MonoBehaviour
                        MyRoomSizeUp.y > Path.y - Path.height &&
                        MyRoomSizeUp.y - MyRoomSizeUp.height < Path.y)
                         {
-                            float Left = MyRoom.x > Path.x ? MyRoom.x : Path.x;
-                            float Right = MyRoom.xMax < Path.xMax ? MyRoom.xMax : Path.xMax;
-                            float top = Mathf.Min(MyRoom.y, Path.y);
-                            float Bottom = Mathf.Max(MyRoom.y - MyRoom.height, Path.y - Path.height);
+                            float Left = MyRoomSizeUp.x > Path.x ? MyRoomSizeUp.x : Path.x;
+                            float Right = MyRoomSizeUp.xMax < Path.xMax ? MyRoomSizeUp.xMax : Path.xMax;
+                            float top = Mathf.Min(MyRoomSizeUp.y, Path.y);
+                            float Bottom = Mathf.Max(MyRoomSizeUp.y - MyRoomSizeUp.height, Path.y - Path.height);
 
 
+                            PathDirection Dir = RoomAndPathDirection(MyRoomSizeUp, Path);
 
-                            
+                            //4방향을 모두 고려해야함
+                            if (Dir == PathDirection.E)
+                            {
+                                Instantiate_AreaControl[i].GetComponent<RoomDeco>().WallDelete(Left - 1.0f, top - 1.0f, Right - Left + 1.0f, Bottom - top - 1);
+                                Instantiate_PathControl[j][k].GetComponent<PathDeco>().WallDelete(Left - 1.0f, top - 1.0f, Right - Left + 1.0f, Bottom - top - 1);
+                            }
+                            else
+                            {
+                                Instantiate_AreaControl[i].GetComponent<RoomDeco>().WallDelete(Left + 1.0f, top + 1.0f, Right - Left, Bottom - top + 1);
+                                Instantiate_PathControl[j][k].GetComponent<PathDeco>().WallDelete(Left + 1.0f, top + 1.0f, Right - Left, Bottom - top + 1);
+                            }
+
                         }
                     }
                 }
