@@ -78,6 +78,9 @@ public class MyMaze : MonoBehaviour
         PathOverLapCheck();
         PathInstantiate();
         assortment();
+        PathAndPathRemove();
+        ChildrPathBothSideWallRemove();
+        allObjectParentChange();
     }
 
     // Update is called once per frame
@@ -1243,25 +1246,110 @@ public class MyMaze : MonoBehaviour
                             float top = Mathf.Min(MyRoomSizeUp.y, Path.y);
                             float Bottom = Mathf.Max(MyRoomSizeUp.y - MyRoomSizeUp.height, Path.y - Path.height);
 
-
-                            PathDirection Dir = RoomAndPathDirection(MyRoomSizeUp, Path);
-
-                            //4방향을 모두 고려해야함
-                            if (Dir == PathDirection.E)
+                            if(Right <= MyRoom.x && Path.height == 5.0f)
                             {
-                                Instantiate_AreaControl[i].GetComponent<RoomDeco>().WallDelete(Left - 1.0f, top - 1.0f, Right - Left + 1.0f, Bottom - top - 1);
-                                Instantiate_PathControl[j][k].GetComponent<PathDeco>().WallDelete(Left - 1.0f, top - 1.0f, Right - Left + 1.0f, Bottom - top - 1);
+                                //MyroomX보다 작은 경우(왼쪽에있슴)
+                                Instantiate_AreaControl[i].GetComponent<RoomDeco>().WallDelete(Left, top - 1.2f, Right - Left + 1.0f, top - Bottom - 1.2f);
+                                Instantiate_PathControl[j][k].GetComponent<PathDeco>().WallDelete(Left, top - 1.2f, Right - Left + 1.0f, top - Bottom - 1.2f);
                             }
-                            else
+                            else if(Left >= MyRoom.xMax && Path.height == 5.0f)
+                            { 
+                                Instantiate_AreaControl[i].GetComponent<RoomDeco>().WallDelete(Left - 1.0f, top - 1.2f, Right - Left + 1.0f, top - Bottom - 1.2f);
+                                Instantiate_PathControl[j][k].GetComponent<PathDeco>().WallDelete(Left - 1.0f, top - 1.2f, Right - Left + 1.0f, top - Bottom - 1.2f);
+                            }
+                            else if(top >= MyRoom.y && Path.width == 5.0f)
                             {
-                                Instantiate_AreaControl[i].GetComponent<RoomDeco>().WallDelete(Left + 1.0f, top + 1.0f, Right - Left, Bottom - top + 1);
-                                Instantiate_PathControl[j][k].GetComponent<PathDeco>().WallDelete(Left + 1.0f, top + 1.0f, Right - Left, Bottom - top + 1);
+                                Instantiate_AreaControl[i].GetComponent<RoomDeco>().WallDelete(Left + 1.0f, top, Right - Left - 1.0f, top - Bottom + 1.2f);
+                                Instantiate_PathControl[j][k].GetComponent<PathDeco>().WallDelete(Left + 1.0f, top, Right - Left - 1.0f, top - Bottom + 1.2f);
                             }
+                            else if (Bottom <= MyRoom.y - MyRoom.height && Path.width == 5.0f)
+                            {
+                                Instantiate_AreaControl[i].GetComponent<RoomDeco>().WallDelete(Left + 1.0f, top + 1.0f, Right - Left - 1.0f, top - Bottom + 1.0f);
+                                Instantiate_PathControl[j][k].GetComponent<PathDeco>().WallDelete(Left + 1.0f, top + 1.0f, Right - Left - 1.0f, top - Bottom + 1.0f);
+                             }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    void PathAndPathRemove()
+    {
+        for (int i = 0; i < L_PathList.Count; i++)
+        {
+            for (int j = 0; j < L_PathList[i].Count; j++)
+            {
+                Rect Path = new Rect(L_PathList[i][j].PathPlayArea.x - L_PathList[i][j].PathSize.x * 0.5f,
+                  L_PathList[i][j].PathPlayArea.z + L_PathList[i][j].PathSize.z * 0.5f,
+                  L_PathList[i][j].PathSize.x,
+                  L_PathList[i][j].PathSize.z);
+
+                for (int k = 0; k < L_PathList.Count; k++)
+                {
+                    for (int o = 0; o < L_PathList[k].Count; o++)
+                    {
+                        Rect AnotherPath = new Rect(L_PathList[k][o].PathPlayArea.x - L_PathList[k][o].PathSize.x * 0.5f,
+                          L_PathList[k][o].PathPlayArea.z + L_PathList[k][o].PathSize.z * 0.5f,
+                          L_PathList[k][o].PathSize.x,
+                          L_PathList[k][o].PathSize.z);
+
+                        //MyRoom에 길이 어느정도 겹치는지 확인한다.
+                        if (AnotherPath.x < Path.xMax &&
+                           AnotherPath.xMax > Path.x &&
+                           AnotherPath.y > Path.y - Path.height &&
+                           AnotherPath.y - AnotherPath.height < Path.y)
+                        {
+                            float Left = AnotherPath.x > Path.x ? AnotherPath.x : Path.x;
+                            float Right = AnotherPath.xMax < Path.xMax ? AnotherPath.xMax : Path.xMax;
+                            float top = Mathf.Min(AnotherPath.y, Path.y);
+                            float Bottom = Mathf.Max(AnotherPath.y - AnotherPath.height, Path.y - Path.height);
+
+                            Instantiate_PathControl[i][j].GetComponent<PathDeco>().WallDelete(AnotherPath.x, AnotherPath.y, AnotherPath.width, AnotherPath.height);
+                            Instantiate_PathControl[k][o].GetComponent<PathDeco>().WallDelete(Path.x, Path.y, Path.width, Path.height);
 
                         }
                     }
                 }
             }
+        }
+    }
+
+    void ChildrPathBothSideWallRemove()
+    {
+        for (int i = 0; i < L_PathList.Count; i++)
+        {
+            for (int j = 0; j < L_PathList[i].Count; j++)
+            {
+                Rect Path = new Rect(L_PathList[i][j].PathPlayArea.x - L_PathList[i][j].PathSize.x * 0.5f,
+                  L_PathList[i][j].PathPlayArea.z + L_PathList[i][j].PathSize.z * 0.5f,
+                  L_PathList[i][j].PathSize.x,
+                  L_PathList[i][j].PathSize.z);
+
+                if(j != 0)
+                {
+                    if(Path.height == 5.0f)
+                    {
+                        Instantiate_PathControl[i][0].GetComponent<PathDeco>().WallDelete(Path.x - 1.0f, Path.y - 1.0f, Path.width + 2.0f, Path.height - 1.0f);
+                        Instantiate_PathControl[i][j].GetComponent<PathDeco>().WallDelete(Path.x - 1.0f, Path.y - 1.0f, Path.width + 2.0f, Path.height - 1.0f);
+                    }
+                    else if(Path.width == 5.0f)
+                    {
+                        Instantiate_PathControl[i][0].GetComponent<PathDeco>().WallDelete(Path.x + 1.0f, Path.y + 1.0f, Path.width - 1.0f, Path.height + 2.0f);
+                        Instantiate_PathControl[i][j].GetComponent<PathDeco>().WallDelete(Path.x + 1.0f, Path.y + 1.0f, Path.width - 1.0f, Path.height + 2.0f);
+                    }
+                }
+            }
+        }
+    }
+
+    void allObjectParentChange()
+    {
+        for(int i =0; i < Instantiate_AreaControl.Count; i++)
+        {
+            Vector3 Temp = Instantiate_AreaControl[i].transform.localPosition;
+
+            Instantiate_AreaControl[i].transform.position = new Vector3(Temp.x, 0.0001f, Temp.z);
         }
     }
 
