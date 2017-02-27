@@ -41,9 +41,24 @@ public class MyMaze : MonoBehaviour
         public Vector3 PathPlayArea; //패스의 실제 위치
     }
 
+    class A_star
+    {
+        public Vector2 Point;
+        public Vector2 WidthAndHeight;
+    }
+
+    enum attributeValue
+    {
+        E_Room = 0,
+        E_Path
+    }
+
+
+
     List<MazeArea> L_Area = new List<MazeArea>();
    
     Dictionary<int, List<PathArea>> L_PathList = new Dictionary<int, List<PathArea>>();
+    Dictionary<int, List<PathArea>> L_PathListAstar = new Dictionary<int, List<PathArea>>();
 
     Vector3 m_MapSize = new Vector3(300.0f, 0.0f, 300.0f);
 
@@ -81,6 +96,7 @@ public class MyMaze : MonoBehaviour
         PathAndPathRemove();
         ChildrPathBothSideWallRemove();
         allObjectParentChange();
+        PlayerAndBoss();
     }
 
     // Update is called once per frame
@@ -1335,8 +1351,8 @@ public class MyMaze : MonoBehaviour
                     }
                     else if(Path.width == 5.0f)
                     {
-                        Instantiate_PathControl[i][0].GetComponent<PathDeco>().WallDelete(Path.x + 1.0f, Path.y + 1.0f, Path.width - 1.0f, Path.height + 2.0f);
-                        Instantiate_PathControl[i][j].GetComponent<PathDeco>().WallDelete(Path.x + 1.0f, Path.y + 1.0f, Path.width - 1.0f, Path.height + 2.0f);
+                        Instantiate_PathControl[i][0].GetComponent<PathDeco>().WallDelete(Path.x + 1.0f, Path.y + 1.1f, Path.width - 1.0f, Path.height + 2.2f);
+                        Instantiate_PathControl[i][j].GetComponent<PathDeco>().WallDelete(Path.x + 1.0f, Path.y + 1.1f, Path.width - 1.0f, Path.height + 2.2f);
                     }
                 }
             }
@@ -1351,6 +1367,60 @@ public class MyMaze : MonoBehaviour
 
             Instantiate_AreaControl[i].transform.position = new Vector3(Temp.x, 0.0001f, Temp.z);
         }
+    }
+    
+    void PlayerAndBoss()
+    {
+        int AreaNumber;
+        Vector2 PlayerMake;
+
+        while (true)
+        {
+            AreaNumber = Random.Range(0, L_Area.Count);
+            PlayerMake = L_Area[AreaNumber].RoomPosition;
+
+            if (PlayerMake.x >= -50 &&
+                PlayerMake.x <= 50 &&
+                PlayerMake.y <= 50 &&
+                PlayerMake.y >= -50)
+            {
+                continue;
+            }
+            else
+                break;
+        }
+
+
+
+        float WidthX = 0.0f;
+        float WidthY = 0.0f;
+        float BossNumber = -1;
+
+        for(int i =0; i < L_PathList.Count; i++)
+        {
+            bool X_Big = false;
+
+            if(i != AreaNumber)
+            {
+                if(WidthX > L_Area[i].RoomPosition.x - L_Area[AreaNumber].RoomPosition.x)
+                {
+                    X_Big = true;
+                }
+
+                if(X_Big && WidthY > L_Area[i].RoomPosition.z - L_Area[AreaNumber].RoomPosition.z)
+                {
+                    WidthX = L_Area[i].RoomPosition.x - L_Area[AreaNumber].RoomPosition.x;
+                    WidthY = L_Area[i].RoomPosition.z - L_Area[AreaNumber].RoomPosition.z;
+                    BossNumber = i;
+                }
+            }
+        }
+
+
+        int asdf = 123;
+
+        //이것을 실행시켜놓으면 코딩을 하는 도중에도 실행이 됨.
+        //Application.runInBackground = true;
     }
 
 
