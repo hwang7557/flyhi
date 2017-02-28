@@ -1377,12 +1377,12 @@ public class MyMaze : MonoBehaviour
         while (true)
         {
             AreaNumber = Random.Range(0, L_Area.Count);
-            PlayerMake = L_Area[AreaNumber].RoomPosition;
+            PlayerMake = new Vector2(L_Area[AreaNumber].RoomPosition.x, L_Area[AreaNumber].RoomPosition.z);
 
-            if (PlayerMake.x >= -50 &&
-                PlayerMake.x <= 50 &&
-                PlayerMake.y <= 50 &&
-                PlayerMake.y >= -50)
+            if ((PlayerMake.x >= -50 &&
+                PlayerMake.x <= 50) || 
+                (PlayerMake.y <= 50 &&
+                PlayerMake.y >= -50))
             {
                 continue;
             }
@@ -1392,36 +1392,30 @@ public class MyMaze : MonoBehaviour
 
 
 
-        float WidthX = 0.0f;
-        float WidthY = 0.0f;
+        float Distance = 0.0f;
         float BossNumber = -1;
 
-        for(int i =0; i < L_PathList.Count; i++)
+        for (int i = 0; i < L_PathList.Count; i++)
         {
-            bool X_Big = false;
-
-            if(i != AreaNumber)
+            if (i != AreaNumber)
             {
-                if(WidthX > L_Area[i].RoomPosition.x - L_Area[AreaNumber].RoomPosition.x)
+                if (Distance < Mathf.Sqrt(Mathf.Pow(L_Area[i].RoomPosition.x - L_Area[AreaNumber].RoomPosition.x, 2) + Mathf.Pow(L_Area[i].RoomPosition.z - L_Area[AreaNumber].RoomPosition.z, 2)))
                 {
-                    X_Big = true;
-                }
-
-                if(X_Big && WidthY > L_Area[i].RoomPosition.z - L_Area[AreaNumber].RoomPosition.z)
-                {
-                    WidthX = L_Area[i].RoomPosition.x - L_Area[AreaNumber].RoomPosition.x;
-                    WidthY = L_Area[i].RoomPosition.z - L_Area[AreaNumber].RoomPosition.z;
+                    Distance = Mathf.Sqrt(Mathf.Pow(L_Area[i].RoomPosition.x - L_Area[AreaNumber].RoomPosition.x, 2) + Mathf.Pow(L_Area[i].RoomPosition.z - L_Area[AreaNumber].RoomPosition.z, 2));
                     BossNumber = i;
                 }
             }
         }
-
-
-        int asdf = 123;
-
         //이것을 실행시켜놓으면 코딩을 하는 도중에도 실행이 됨.
         //Application.runInBackground = true;
+
+
+        GameObject PlayerLoad = Resources.Load("Prefebs/Player") as GameObject;
+        Instantiate(PlayerLoad, L_Area[AreaNumber].RoomPosition, Quaternion.identity);
+
     }
+
+
 
 
 
