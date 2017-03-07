@@ -103,9 +103,11 @@
     <Compile Include="Assets\script\Move2.cs" />
     <Compile Include="Assets\script\PlayerCar.cs" />
     <Compile Include="Assets\script\Port\KnightAnimationClip.cs" />
+    <Compile Include="Assets\script\Port\LookAtCamera.cs" />
     <Compile Include="Assets\script\Port\MyMaze.cs" />
     <Compile Include="Assets\script\Port\PathDeco.cs" />
     <Compile Include="Assets\script\Port\RoomDeco.cs" />
+    <Compile Include="Assets\script\Port\Spell.cs" />
     <Compile Include="Assets\script\RayTest.cs" />
     <Compile Include="Assets\script\Rotation.cs" />
     <Compile Include="Assets\script\SceneManager.cs" />
@@ -196,6 +198,7 @@
     <None Include="Assets\L_FG_Assets_Pack1.0\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_DepthOfField\SeparableWeightedBlurDof34.shader" />
     <None Include="Assets\L_FG_Assets_Pack1.0\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_DepthOfField\TiltShift.shader" />
     <None Include="Assets\L_FG_Assets_Pack1.0\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\frag_ao.cginc" />
+    <None Include="Assets\fantasy horde_goblin\shader\fantasy horde-goblin_Compressed MaskedShader2sided.shader" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />

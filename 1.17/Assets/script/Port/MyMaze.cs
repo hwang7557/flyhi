@@ -1365,7 +1365,7 @@ public class MyMaze : MonoBehaviour
         {
             Vector3 Temp = Instantiate_AreaControl[i].transform.localPosition;
 
-            Instantiate_AreaControl[i].transform.position = new Vector3(Temp.x, 0.0001f, Temp.z);
+            Instantiate_AreaControl[i].transform.position = new Vector3(Temp.x, 0.001f, Temp.z);
         }
     }
     
