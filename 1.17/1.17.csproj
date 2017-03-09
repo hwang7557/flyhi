@@ -102,6 +102,7 @@
     <Compile Include="Assets\script\Move.cs" />
     <Compile Include="Assets\script\Move2.cs" />
     <Compile Include="Assets\script\PlayerCar.cs" />
+    <Compile Include="Assets\script\Port\GoblinAnimationClip.cs" />
     <Compile Include="Assets\script\Port\KnightAnimationClip.cs" />
     <Compile Include="Assets\script\Port\LookAtCamera.cs" />
     <Compile Include="Assets\script\Port\MyMaze.cs" />
