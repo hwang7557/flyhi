@@ -60,7 +60,7 @@ public class MyMaze : MonoBehaviour
     Dictionary<int, List<PathArea>> L_PathList = new Dictionary<int, List<PathArea>>();
     Dictionary<int, List<PathArea>> L_PathListAstar = new Dictionary<int, List<PathArea>>();
 
-    Vector3 m_MapSize = new Vector3(300.0f, 0.0f, 300.0f);
+    Vector3 m_MapSize = new Vector3(150.0f, 0.0f, 150.0f);
 
     GameObject PathPrefeb = null;
 
@@ -78,10 +78,10 @@ public class MyMaze : MonoBehaviour
 
         MazeArea d = new MazeArea();
         d.LocalArea = m_MapSize;
-        d.PlayArea = new Vector3(-150, 0, 150);
+        d.PlayArea = new Vector3(-m_MapSize.x * 0.5f, 0, m_MapSize.z * 0.5f);
         d.ParentNum = -1;
         d.CombineLocalArea = m_MapSize;
-        d.CombinePlayArea = new Vector3(-150, 0, 150);
+        d.CombinePlayArea = new Vector3(-m_MapSize.x * 0.5f, 0, m_MapSize.z * 0.5f);
 
 
 
@@ -173,7 +173,8 @@ public class MyMaze : MonoBehaviour
 
         for (int i = 0; i < Count; i++)
         {
-            if (L_Area[i].LocalArea.x < 30.0f || L_Area[i].LocalArea.z < 30.0f || MazeMakeCount == 3)
+            //if (L_Area[i].LocalArea.x < 30.0f || L_Area[i].LocalArea.z < 30.0f || MazeMakeCount == 3)
+            if (MazeMakeCount == 3)
             {
                 check = false;
             }
@@ -520,9 +521,7 @@ public class MyMaze : MonoBehaviour
 
                                         L_PathList[j].Add(NewCollectPath);
 
-                                        Debug.Log("if (CollectWidth >= 5) else\n 1 Fix"
-                                            + NewCollectPath.PathPlayArea.ToString() + "\n"
-                                            + NewCollectPath.PathSize.ToString());
+                                   
                                     }
                                 }
                                 else if (CollectWidth < 0 && CollectHeight < 0)
@@ -1166,6 +1165,14 @@ public class MyMaze : MonoBehaviour
 
             Instantiate_AreaControl[i].GetComponent<RoomDeco>().floorTilingScaleChange(L_Area[i].RoomSize.x, L_Area[i].RoomSize.z);
             Instantiate_AreaControl[i].GetComponent<RoomDeco>().WallMake(L_Area[i].RoomSize.x, L_Area[i].RoomSize.z);
+            Instantiate_AreaControl[i].GetComponent<RoomDeco>().MapSizeReceive = m_MapSize;
+
+            GameObject[] Obj_array = { Resources.Load("Prefebs/goblin1") as GameObject,
+            Resources.Load("Prefebs/goblin2") as GameObject,
+            Resources.Load("Prefebs/goblin3") as GameObject};
+
+
+            Instantiate_AreaControl[i].GetComponent<RoomDeco>().ResourceLoad(Obj_array);
 
         }
 
@@ -1197,7 +1204,11 @@ public class MyMaze : MonoBehaviour
                     Instantiate_PathControl[i][j].GetComponent<PathDeco>().WallMakeX(L_PathList[i][j].PathSize.x, L_PathList[i][j].PathSize.z);
                 }
 
-                
+                //맵 사이즈 받기 만들어 놓은거
+               //Instantiate_PathControl[i][j].GetComponent<PathDeco>().ma
+
+
+
             }
         }
     }
@@ -1366,7 +1377,18 @@ public class MyMaze : MonoBehaviour
             Vector3 Temp = Instantiate_AreaControl[i].transform.localPosition;
 
             Instantiate_AreaControl[i].transform.position = new Vector3(Temp.x, 0.001f, Temp.z);
+            Instantiate_AreaControl[i].GetComponent<RoomDeco>().RoomDecoComplete = true;
         }
+
+        for (int i = 0; i < Instantiate_PathControl.Count; i++)
+        {
+            for(int j= 0; j < Instantiate_PathControl[i].Count; j++)
+            {
+                Instantiate_PathControl[i][j].GetComponent<PathDeco>().PathDecoComplete = true;
+            } 
+        }
+
+
     }
     
     void PlayerAndBoss()
@@ -1393,7 +1415,7 @@ public class MyMaze : MonoBehaviour
 
 
         float Distance = 0.0f;
-        float BossNumber = -1;
+        int BossNumber = -1;
 
         for (int i = 0; i < L_PathList.Count; i++)
         {
@@ -1409,9 +1431,19 @@ public class MyMaze : MonoBehaviour
         //이것을 실행시켜놓으면 코딩을 하는 도중에도 실행이 됨.
         //Application.runInBackground = true;
 
+        //만들었지만 체크해야하는 과제가 생김 우선 보스룸과 플레이어룸의 거리가
+        //멀리떨어져있는 것을 우선으로 시작했지만, 실제로 가장 멀리가는 거리에 있는건 아님
+        //이런것을 고려하여 A_star를 사용하는것도 고려해야함.(시간이 나면 하자 좀 급하진 않잔아)
+        //방금 생각난건데 A_star를 사용하지 않고 구체를 하나 플레이어 시작지점에서 보낸 후
+        //광선(Ray)를 쏘면서 각방을 체크해서 들어간 후 해당 방에 도착하면 거리를 산출하고
+        //거리를 산출하고 나면 그 거리가 먼지 확인을 해서 아니면 중간 지점으로 복귀하여
+        //다시 이동하는 방식을 통해서 가장 거리가 먼 방을 구하는것도 재미있을것 같다.
 
         GameObject PlayerLoad = Resources.Load("Prefebs/Player") as GameObject;
         Instantiate(PlayerLoad, L_Area[AreaNumber].RoomPosition, Quaternion.identity);
+        Instantiate_AreaControl[AreaNumber].GetComponent<RoomDeco>().ImPlayerRoom = true;
+        Instantiate_AreaControl[BossNumber].GetComponent<RoomDeco>().ImBossRoom = true;
+
 
     }
 
