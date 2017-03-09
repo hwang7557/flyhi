@@ -134,7 +134,6 @@ public class RoomDeco : MonoBehaviour {
             
             if (Value <= 1.0f)
             {
-                Debug.Log("나왓음");
                 //미니언 한마리 << 기본적인 워리어만 출현
                 equipment(Instantiate(Goblin[0], V3_RND_Posi[Random.Range(0, RND_Value)], Quaternion.identity));
 
@@ -477,6 +476,7 @@ public class RoomDeco : MonoBehaviour {
                 if (child.name.Contains(bootName[RND_boot]))
                 {
                     Temp.Add(child);
+                    break;
                 }
             }
 
@@ -504,6 +504,7 @@ public class RoomDeco : MonoBehaviour {
             {
                 Destroy(Temp[i].gameObject);
             }
+            
         }
         else if (tempTransforms[1].name.Contains("goblin_ranger"))
         {
@@ -515,19 +516,23 @@ public class RoomDeco : MonoBehaviour {
                 if (child.name.Contains(bootName[RND_boot]))
                 {
                     Temp.Add(child);
+                    break;
                 }
             }
 
-            string[] WeaponName = {"goblin_arch", "goblin_quiver", "goblin_ran_spear",
-             "goblin_ran_shield", "goblin_ran_club","goblin_ran_axe", "goblin_ran_sword"};
+            string[] WeaponName = {"goblin_ran_spear", "goblin_ran_shield", "goblin_ran_club","goblin_ran_axe", "goblin_ran_sword"};
 
-            int RND_W = Random.Range(4, 8);
+            int RND_W = Random.Range(2, 5);
+
+            int TempCount = 0;
+            int Weapon_Num = -1;
+            int Arrow_Num = -1;
 
             foreach (Transform child in tempTransforms)
             {
                 for (int i = 0; i < WeaponName.Length; i++)
                 {
-                    if (RND_W != i)
+                    if(RND_W != i)
                     {
                         if (child.name.Contains(WeaponName[i]))
                         {
@@ -536,7 +541,42 @@ public class RoomDeco : MonoBehaviour {
                         }
                     }
                 }
+                if(child.name.Contains(WeaponName[RND_W]))
+                {
+                    Weapon_Num = TempCount;
+                }
+                if (child.name.Contains("goblin_quiver"))
+                {
+                    Arrow_Num = TempCount;
+                }
+                TempCount++;
             }
+
+            
+            
+
+            int Ribcage_num = -1;
+
+            for (int i =0; i <  tempTransforms.Length; i++)
+            {  
+                if (tempTransforms[i].gameObject.name.Contains("bip_gob_ranRibcage"))
+                {
+                    Ribcage_num = i;
+                }
+            }
+
+            tempTransforms[Weapon_Num].parent = null;
+            tempTransforms[Weapon_Num].parent = tempTransforms[Ribcage_num];
+
+            Quaternion Q_temp = Quaternion.identity;
+            Q_temp.eulerAngles = new Vector3(0.0f, 70.0f, 0.0f);
+
+            tempTransforms[Weapon_Num].localRotation = Q_temp;
+            tempTransforms[Weapon_Num].localPosition = new Vector3(-12.3f, -10.2f, -13.1f);
+            
+
+
+
 
             for (int i = 0; i < Temp.Count; i++)
             {
@@ -553,6 +593,7 @@ public class RoomDeco : MonoBehaviour {
                 if (child.name.Contains(bootName[RND_boot]))
                 {
                     Temp.Add(child);
+                    break;
                 }
             }
 
@@ -563,6 +604,7 @@ public class RoomDeco : MonoBehaviour {
 
             foreach (Transform child in tempTransforms)
             {
+                bool temp = false;
                 for (int i = 0; i < WeaponName.Length; i++)
                 {
                     if (RND_W != i)
@@ -570,10 +612,16 @@ public class RoomDeco : MonoBehaviour {
                         if (child.name.Contains(WeaponName[i]))
                         {
                             Temp.Add(child);
+                            temp = true;
                             break;
                         }
                     }
                 }
+                if (temp)
+                {
+                    break;
+                }
+
             }
 
             for (int i = 0; i < Temp.Count; i++)
@@ -581,6 +629,7 @@ public class RoomDeco : MonoBehaviour {
                 Destroy(Temp[i].gameObject);
             }
         }
+        StartCoroutine(tempTransforms[1].gameObject.GetComponent<GoblinAnimationClip>().Goblin_WeaponCheck());
     }
 
 }

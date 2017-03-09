@@ -521,9 +521,7 @@ public class MyMaze : MonoBehaviour
 
                                         L_PathList[j].Add(NewCollectPath);
 
-                                        Debug.Log("if (CollectWidth >= 5) else\n 1 Fix"
-                                            + NewCollectPath.PathPlayArea.ToString() + "\n"
-                                            + NewCollectPath.PathSize.ToString());
+                                   
                                     }
                                 }
                                 else if (CollectWidth < 0 && CollectHeight < 0)
